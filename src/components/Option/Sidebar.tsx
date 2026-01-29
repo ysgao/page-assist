@@ -603,9 +603,9 @@ export const Sidebar = ({
         draggable
         onDragStart={() => handleDragStart(chat.id)}
         onDragEnd={handleDragEnd}
-        className={`flex py-2 px-2 items-center gap-3 relative rounded-md truncate hover:pr-4 group transition-opacity duration-300 ease-in-out border ${historyId === chat.id
-            ? "bg-gray-200 dark:bg-[#454242] border-gray-400 dark:border-gray-600 text-gray-900 dark:text-gray-100"
-            : "bg-gray-50 dark:bg-[#242424] dark:text-gray-100 text-gray-800 border-gray-300 dark:border-[#404040] hover:bg-gray-200 dark:hover:bg-[#2a2a2a]"
+        className={`flex py-2.5 px-3 items-center gap-3 relative rounded-lg truncate group transition-all duration-200 ease-in-out border hover:shadow-sm hover:scale-[1.01] ${historyId === chat.id
+          ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-100 shadow-sm"
+          : "bg-transparent border-transparent hover:bg-gray-100 dark:hover:bg-zinc-800 text-gray-700 dark:text-gray-300"
           }`}
         data-chat-id={chat.id}>
         {chat?.message_source === "copilot" && (
@@ -637,8 +637,8 @@ export const Sidebar = ({
               autoFocus
               disabled={generatingTitleId === chat.id}
               className={`flex-1 h-8 text-sm z-20 px-0 bg-transparent outline-none border-none dark:focus:ring-[#404040] focus:ring-gray-300 focus:rounded-md focus:p-2 caret-current selection:bg-gray-300 dark:selection:bg-gray-600 ${historyId === chat.id
-                  ? "text-gray-900 dark:text-gray-100 placeholder-gray-500"
-                  : "text-gray-800 dark:text-gray-100 placeholder-gray-400"
+                ? "text-gray-900 dark:text-gray-100 placeholder-gray-500"
+                : "text-gray-800 dark:text-gray-100 placeholder-gray-400"
                 } ${generatingTitleId === chat.id ? "opacity-50" : ""}`}
             />
             <Tooltip
@@ -653,8 +653,8 @@ export const Sidebar = ({
                 }}
                 disabled={generatingTitleId === chat.id}
                 className={`p-1 rounded-md transition-all duration-200 ${generatingTitleId === chat.id
-                    ? "text-purple-500 dark:text-purple-400"
-                    : "text-gray-400 hover:text-purple-500 dark:hover:text-purple-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  ? "text-purple-500 dark:text-purple-400"
+                  : "text-gray-400 hover:text-purple-500 dark:hover:text-purple-400 hover:bg-gray-200 dark:hover:bg-gray-700"
                   }`}>
                 <Sparkles
                   className={`w-4 h-4 ${generatingTitleId === chat.id ? "animate-pulse" : ""
@@ -788,7 +788,7 @@ export const Sidebar = ({
                 </button>
               ) : null
             }
-            className="w-full rounded-md border border-gray-300 dark:border-gray-700 dark:bg-[#232222]"
+            className="w-full rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-[#232222] focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
           />
         </div>
       </div>
@@ -905,8 +905,8 @@ export const Sidebar = ({
                     onDragLeave={() => setDragOverProjectId(null)}
                     onDrop={() => handleDropOnFolder(folder.id)}
                     className={`rounded-md p-2 mb-2 border transition-colors ${dragOverProjectId === folder.id
-                        ? "bg-blue-100 dark:bg-blue-900/30 border-blue-400 dark:border-blue-600"
-                        : "bg-gray-100 dark:bg-[#2a2a2a] border-gray-400 dark:border-[#383838]"
+                      ? "bg-blue-100 dark:bg-blue-900/30 border-blue-400 dark:border-blue-600"
+                      : "bg-gray-100 dark:bg-[#2a2a2a] border-gray-400 dark:border-[#383838]"
                       }`}>
                     <div className="flex items-center justify-between">
                       {editingProjectId === folder.id ? (
@@ -997,8 +997,8 @@ export const Sidebar = ({
                   onDragLeave={() => setDragOverProjectId(null)}
                   onDrop={() => handleDropOnFolder(undefined)}
                   className={`rounded-md ${dragOverProjectId === "unassigned"
-                      ? "bg-blue-50 dark:bg-blue-900/20"
-                      : ""
+                    ? "bg-blue-50 dark:bg-blue-900/20"
+                    : ""
                     }`}>
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="px-2 text-sm font-medium text-gray-500">

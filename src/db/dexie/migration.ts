@@ -1,17 +1,16 @@
 import { getLastUsedChatModel, getLastUsedChatSystemPrompt } from "@/services/model-settings"
 import { PageAssitDatabase as ChromeDB } from "../index"
 import { getAllKnowledge } from "../knowledge"
-import { getAllVector,  } from "../vector"
-import { PageAssistDatabase as DexieDB, } from "./chat"
-import { PageAssistKnowledge as DexieDBK } from "./knowledge"
-import { PageAssistVectorDb as DexieDBV } from "./vector"
-import { OpenAIModelDb as DexieDBOAI } from "./openai"
-import {ModelNickname as DexieDBNick} from "./nickname"
-import { ModelDb as DexieDBM } from "./models"
-import { getAllOpenAIConfig } from "../openai"
 import { getAllModelsExT } from "../models"
 import { getAllModelNicknamesMig } from "../nickname"
-import { notification } from "antd"
+import { getAllOpenAIConfig } from "../openai"
+import { getAllVector, } from "../vector"
+import { PageAssistDatabase as DexieDB, } from "./chat"
+import { PageAssistKnowledge as DexieDBK } from "./knowledge"
+import { ModelDb as DexieDBM } from "./models"
+import { ModelNickname as DexieDBNick } from "./nickname"
+import { OpenAIModelDb as DexieDBOAI } from "./openai"
+import { PageAssistVectorDb as DexieDBV } from "./vector"
 
 export class DatabaseMigration {
   private chromeDB: ChromeDB
@@ -129,7 +128,7 @@ export class DatabaseMigration {
       try {
         const configs = await getAllOpenAIConfig()
         await this.dexieDBOAI.importDataV2(configs)
-      } catch(error) {
+      } catch (error) {
         errors.push(`Failed to migrate OAI: ${error}`)
       }
 
@@ -138,7 +137,7 @@ export class DatabaseMigration {
       try {
         const models = await getAllModelsExT()
         await this.dexieDBM.importDataV2(models)
-      } catch(error) {
+      } catch (error) {
         errors.push(`Failed to migrate OAI: ${error}`)
       }
 
@@ -150,7 +149,7 @@ export class DatabaseMigration {
         errors.push(`Failed to migrate knowledge: ${error}`)
       }
 
-     // Migrate nickname
+      // Migrate nickname
       try {
         console.log("Saving Nickname")
         const nicknames = await getAllModelNicknamesMig()
@@ -193,11 +192,30 @@ export class DatabaseMigration {
         errors.push(`Failed to migrate webshares: ${error}`)
       }
 
-      // Migrate session files - this is tricky since Chrome storage doesn't have a way to enumerate all keys
-      // We'll need to handle this separately or ask the user to provide session IDs
-      console.warn(
-        "Session files migration requires manual handling of session IDs"
-      )
+      // Migrate session files
+      try {
+        const sessionIds = await new Promise<string[]>((resolve) => {
+          chrome.storage.local.get(null, (items) => {
+            const ids: string[] = []
+            for (const key in items) {
+              if (key.startsWith("session_files_")) {
+                ids.push(key.replace("session_files_", ""))
+              }
+            }
+            resolve(ids)
+          })
+        })
+
+        if (sessionIds.length > 0) {
+          const result = await this.migrateSessionFiles(sessionIds)
+          migratedCounts.sessionFiles = result.migratedCount
+          if (result.errors.length > 0) {
+            errors.push(...result.errors)
+          }
+        }
+      } catch (error) {
+        errors.push(`Failed to migrate session files: ${error}`)
+      }
 
       return {
         success: errors.length === 0,
