@@ -1,61 +1,61 @@
-import {
-  useMutation,
-  useQueryClient,
-  useInfiniteQuery,
-  useQuery
-} from "@tanstack/react-query"
-import {
-  Empty,
-  Skeleton,
-  Dropdown,
-  Menu,
-  Tooltip,
-  Input,
-  message,
-  Button
-} from "antd"
 import { SaveButton } from "@/components/Common/SaveButton"
-import {
-  PencilIcon,
-  Trash2,
-  MoreVertical,
-  PinIcon,
-  PinOffIcon,
-  BotIcon,
-  SearchIcon,
-  Trash2Icon,
-  Loader2,
-  ChevronDown,
-  GitBranch,
-  Sparkles,
-  FolderPlus,
-  Folder
-} from "lucide-react"
-import { useNavigate } from "react-router-dom"
-import { useTranslation } from "react-i18next"
-import { lastUsedChatModelEnabled } from "@/services/model-settings"
-import { useDebounce } from "@/hooks/useDebounce"
-import { useState, useRef, useEffect } from "react"
 import { PageAssistDatabase } from "@/db/dexie/chat"
 import {
+  addProjectFolder,
+  assignHistoryToFolder,
   deleteByHistoryId,
   deleteHistoriesByDateRange,
-  formatToChatHistory,
-  updateHistory,
-  pinHistory,
-  formatToMessage,
-  getSessionFiles,
-  getPromptById,
-  getProjectFolders,
-  addProjectFolder,
-  updateProjectFolder,
   deleteProjectFolder,
-  assignHistoryToFolder
+  formatToChatHistory,
+  formatToMessage,
+  getProjectFolders,
+  getPromptById,
+  getSessionFiles,
+  pinHistory,
+  updateHistory,
+  updateProjectFolder
 } from "@/db/dexie/helpers"
 import { UploadedFile } from "@/db/dexie/types"
+import { useDebounce } from "@/hooks/useDebounce"
+import { lastUsedChatModelEnabled } from "@/services/model-settings"
+import { generateTitle } from "@/services/title"
 import { isDatabaseClosedError } from "@/utils/ff-error"
 import { updatePageTitle } from "@/utils/update-page-title"
-import { generateTitle } from "@/services/title"
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient
+} from "@tanstack/react-query"
+import {
+  Button,
+  Dropdown,
+  Empty,
+  Input,
+  Menu,
+  message,
+  Skeleton,
+  Tooltip
+} from "antd"
+import {
+  Bot as BotIcon,
+  ChevronDown,
+  Folder,
+  FolderPlus,
+  GitBranch,
+  Loader2,
+  MoreVertical,
+  Pencil as PencilIcon,
+  Pin as PinIcon,
+  PinOff as PinOffIcon,
+  Search as SearchIcon,
+  Sparkles,
+  Trash2,
+  Trash2 as Trash2Icon
+} from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
+import { useNavigate } from "react-router-dom"
 
 type Props = {
   onClose: () => void
@@ -603,11 +603,10 @@ export const Sidebar = ({
         draggable
         onDragStart={() => handleDragStart(chat.id)}
         onDragEnd={handleDragEnd}
-        className={`flex py-2 px-2 items-center gap-3 relative rounded-md truncate hover:pr-4 group transition-opacity duration-300 ease-in-out border ${
-          historyId === chat.id
+        className={`flex py-2 px-2 items-center gap-3 relative rounded-md truncate hover:pr-4 group transition-opacity duration-300 ease-in-out border ${historyId === chat.id
             ? "bg-gray-200 dark:bg-[#454242] border-gray-400 dark:border-gray-600 text-gray-900 dark:text-gray-100"
             : "bg-gray-50 dark:bg-[#242424] dark:text-gray-100 text-gray-800 border-gray-300 dark:border-[#404040] hover:bg-gray-200 dark:hover:bg-[#2a2a2a]"
-        }`}
+          }`}
         data-chat-id={chat.id}>
         {chat?.message_source === "copilot" && (
           <BotIcon className="size-3 text-gray-500 dark:text-gray-400" />
@@ -637,11 +636,10 @@ export const Sidebar = ({
               }}
               autoFocus
               disabled={generatingTitleId === chat.id}
-              className={`flex-1 h-8 text-sm z-20 px-0 bg-transparent outline-none border-none dark:focus:ring-[#404040] focus:ring-gray-300 focus:rounded-md focus:p-2 caret-current selection:bg-gray-300 dark:selection:bg-gray-600 ${
-                historyId === chat.id
+              className={`flex-1 h-8 text-sm z-20 px-0 bg-transparent outline-none border-none dark:focus:ring-[#404040] focus:ring-gray-300 focus:rounded-md focus:p-2 caret-current selection:bg-gray-300 dark:selection:bg-gray-600 ${historyId === chat.id
                   ? "text-gray-900 dark:text-gray-100 placeholder-gray-500"
                   : "text-gray-800 dark:text-gray-100 placeholder-gray-400"
-              } ${generatingTitleId === chat.id ? "opacity-50" : ""}`}
+                } ${generatingTitleId === chat.id ? "opacity-50" : ""}`}
             />
             <Tooltip
               title={t("common:generateTitle", {
@@ -654,20 +652,18 @@ export const Sidebar = ({
                   handleGenerateTitle(chat)
                 }}
                 disabled={generatingTitleId === chat.id}
-                className={`p-1 rounded-md transition-all duration-200 ${
-                  generatingTitleId === chat.id
+                className={`p-1 rounded-md transition-all duration-200 ${generatingTitleId === chat.id
                     ? "text-purple-500 dark:text-purple-400"
                     : "text-gray-400 hover:text-purple-500 dark:hover:text-purple-400 hover:bg-gray-200 dark:hover:bg-gray-700"
-                }`}>
+                  }`}>
                 <Sparkles
-                  className={`w-4 h-4 ${
-                    generatingTitleId === chat.id ? "animate-pulse" : ""
-                  }`}
+                  className={`w-4 h-4 ${generatingTitleId === chat.id ? "animate-pulse" : ""
+                    }`}
                   style={
                     generatingTitleId === chat.id
                       ? {
-                          filter: "drop-shadow(0 0 4px rgba(168, 85, 247, 0.6))"
-                        }
+                        filter: "drop-shadow(0 0 4px rgba(168, 85, 247, 0.6))"
+                      }
                       : undefined
                   }
                 />
@@ -908,11 +904,10 @@ export const Sidebar = ({
                     }}
                     onDragLeave={() => setDragOverProjectId(null)}
                     onDrop={() => handleDropOnFolder(folder.id)}
-                    className={`rounded-md p-2 mb-2 border transition-colors ${
-                      dragOverProjectId === folder.id
+                    className={`rounded-md p-2 mb-2 border transition-colors ${dragOverProjectId === folder.id
                         ? "bg-blue-100 dark:bg-blue-900/30 border-blue-400 dark:border-blue-600"
                         : "bg-gray-100 dark:bg-[#2a2a2a] border-gray-400 dark:border-[#383838]"
-                    }`}>
+                      }`}>
                     <div className="flex items-center justify-between">
                       {editingProjectId === folder.id ? (
                         <input
@@ -937,9 +932,8 @@ export const Sidebar = ({
                           onClick={() => toggleFolderCollapse(folder.id)}
                           className="flex items-center gap-2 flex-1 text-left hover:opacity-70 transition-opacity">
                           <ChevronDown
-                            className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${
-                              isCollapsed ? "-rotate-90" : ""
-                            }`}
+                            className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${isCollapsed ? "-rotate-90" : ""
+                              }`}
                           />
                           <Folder className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -1002,11 +996,10 @@ export const Sidebar = ({
                   }}
                   onDragLeave={() => setDragOverProjectId(null)}
                   onDrop={() => handleDropOnFolder(undefined)}
-                  className={`rounded-md ${
-                    dragOverProjectId === "unassigned"
+                  className={`rounded-md ${dragOverProjectId === "unassigned"
                       ? "bg-blue-50 dark:bg-blue-900/20"
                       : ""
-                  }`}>
+                    }`}>
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="px-2 text-sm font-medium text-gray-500">
                       {t("common:yourChats", { defaultValue: "Your chats" })}

@@ -1,33 +1,33 @@
+import { ModelSelect } from "@/components/Common/ModelSelect"
+import { useFocusShortcuts } from "@/hooks/keyboard"
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition"
+import { getIsSimpleInternetSearch } from "@/services/search"
+import { handleChatInputKeyDown } from "@/utils/key-down"
+import { getVariable } from "@/utils/select-variable"
 import { useForm } from "@mantine/form"
+import { useStorage } from "@plasmohq/storage/hook"
 import { useMutation } from "@tanstack/react-query"
+import { Checkbox, Dropdown, Image, Popover, Radio, Tooltip } from "antd"
+import {
+  Brain,
+  BrainCircuit,
+  Eye as EyeIcon,
+  EyeOff as EyeOffIcon,
+  Image as ImageIcon,
+  Mic as MicIcon,
+  StopCircle as StopCircleIcon,
+  X
+} from "lucide-react"
 import React from "react"
+import { useTranslation } from "react-i18next"
+import { PiGlobe, PiGlobeX } from "react-icons/pi"
 import useDynamicTextareaSize from "~/hooks/useDynamicTextareaSize"
 import { useMessage } from "~/hooks/useMessage"
+import { isGptOssModel, isThinkingCapableModel } from "~/libs/model-utils"
 import { toBase64 } from "~/libs/to-base64"
-import { Checkbox, Dropdown, Image, Switch, Tooltip, Popover, Radio } from "antd"
-import { useWebUI } from "~/store/webui"
 import { defaultEmbeddingModelForRag } from "~/services/ollama"
-import {
-  ImageIcon,
-  MicIcon,
-  StopCircleIcon,
-  X,
-  EyeIcon,
-  EyeOffIcon,
-  Brain,
-  BrainCircuit
-} from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { ModelSelect } from "@/components/Common/ModelSelect"
-import { useSpeechRecognition } from "@/hooks/useSpeechRecognition"
-import { PiGlobeX, PiGlobe } from "react-icons/pi"
-import { handleChatInputKeyDown } from "@/utils/key-down"
-import { getIsSimpleInternetSearch } from "@/services/search"
-import { useStorage } from "@plasmohq/storage/hook"
-import { useFocusShortcuts } from "@/hooks/keyboard"
-import { isThinkingCapableModel, isGptOssModel } from "~/libs/model-utils"
 import { useStoreChatModelSettings } from "~/store/model"
-import { getVariable } from "@/utils/select-variable"
+import { useWebUI } from "~/store/webui"
 
 type Props = {
   dropedFile: File | undefined
@@ -272,7 +272,7 @@ export const SidepanelForm = ({ dropedFile }: Props) => {
     }
   }, [defaultInternetSearchOn])
 
- 
+
   return (
     <div className="flex w-full flex-col items-center px-2">
       <div className="relative z-10 flex w-full flex-col items-center justify-center gap-2 text-base">
@@ -396,9 +396,8 @@ export const SidepanelForm = ({ dropedFile }: Props) => {
                           <button
                             type="button"
                             onClick={() => setWebSearch(!webSearch)}
-                            className={`inline-flex items-center gap-2   ${
-                              chatMode === "rag" ? "hidden" : "block"
-                            }`}>
+                            className={`inline-flex items-center gap-2   ${chatMode === "rag" ? "hidden" : "block"
+                              }`}>
                             {webSearch ? (
                               <PiGlobe className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                             ) : (
@@ -489,9 +488,8 @@ export const SidepanelForm = ({ dropedFile }: Props) => {
                             }
                           }}
                           disabled={chatMode === "rag"}
-                          className={`flex items-center justify-center dark:text-gray-300 ${
-                            chatMode === "rag" ? "hidden" : "block"
-                          } disabled:opacity-50`}>
+                          className={`flex items-center justify-center dark:text-gray-300 ${chatMode === "rag" ? "hidden" : "block"
+                            } disabled:opacity-50`}>
                           {chatMode === "vision" ? (
                             <EyeIcon className="h-4 w-4" />
                           ) : (
@@ -506,9 +504,8 @@ export const SidepanelForm = ({ dropedFile }: Props) => {
                             inputRef.current?.click()
                           }}
                           disabled={chatMode === "vision"}
-                          className={`flex items-center justify-center disabled:opacity-50 dark:text-gray-300 ${
-                            chatMode === "rag" ? "hidden" : "block"
-                          }`}>
+                          className={`flex items-center justify-center disabled:opacity-50 dark:text-gray-300 ${chatMode === "rag" ? "hidden" : "block"
+                            }`}>
                           <ImageIcon className="h-4 w-4" />
                         </button>
                       </Tooltip>

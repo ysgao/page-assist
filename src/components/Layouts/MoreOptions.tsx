@@ -1,22 +1,21 @@
-import {
-  MoreHorizontal,
-  FileText,
-  Share2,
-  FileJson,
-  FileCode,
-  ImageIcon
-} from "lucide-react"
-import { Dropdown, MenuProps, message } from "antd"
-import { Message } from "@/types/message"
-import { useState } from "react"
-import { ShareModal } from "../Common/ShareModal"
-import { useTranslation } from "react-i18next"
 import { removeModelSuffix } from "@/db/dexie/models"
+import { Message } from "@/types/message"
 import { copyToClipboard } from "@/utils/clipboard"
-import ReactDOM from "react-dom"
-import html2canvas from "html2canvas"
-import { ImageExportWrapper } from "../Common/ImageExport"
 import { convertMathDelimiters } from "@/utils/math-delimiter"
+import { Dropdown, MenuProps, message } from "antd"
+import html2canvas from "html2canvas"
+import {
+  FileCode,
+  FileJson,
+  FileText,
+  ImageIcon,
+  MoreHorizontal,
+  Share2
+} from "lucide-react"
+import { useState } from "react"
+import { useTranslation } from "react-i18next"
+import { ImageExportWrapper } from "../Common/ImageExport"
+import { ShareModal } from "../Common/ShareModal"
 interface MoreOptionsProps {
   messages: Message[]
   historyId: string
@@ -66,7 +65,11 @@ const generateChatImage = async (messages: Message[]) => {
   const root = document.createElement("div")
   document.body.appendChild(root)
   const element = <ImageExportWrapper messages={messages} />
-  ReactDOM.render(element, root)
+
+  // Use createRoot instead of ReactDOM.render
+  const reactRoot = createRoot(root)
+  reactRoot.render(element)
+
   await new Promise((resolve) => setTimeout(resolve, 100))
   const container = document.getElementById("export-container")
   if (!container) {
@@ -77,7 +80,9 @@ const generateChatImage = async (messages: Message[]) => {
     backgroundColor: "#ffffff",
     scale: 2
   })
-  ReactDOM.unmountComponentAtNode(root)
+
+  // Use root.unmount() instead of ReactDOM.unmountComponentAtNode
+  reactRoot.unmount()
   document.body.removeChild(root)
 
   return canvas.toDataURL("image/png")

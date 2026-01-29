@@ -1,32 +1,31 @@
-import Markdown from "../../Common/Markdown"
-import React, { useEffect } from "react"
-import { Tag, Image, Tooltip, Collapse, Popover, Avatar } from "antd"
-import { ActionInfo } from "./ActionInfo"
+import { removeModelSuffix } from "@/db/dexie/models"
+import { useTTS } from "@/hooks/useTTS"
+import { parseReasoning } from "@/libs/reasoning"
+import { ChatDocuments } from "@/models/ChatTypes"
+import { copyToClipboard } from "@/utils/clipboard"
+import { tagColors } from "@/utils/color"
+import { humanizeMilliseconds } from "@/utils/humanize-milliseconds"
+import { useStorage } from "@plasmohq/storage/hook"
+import { Avatar, Collapse, Image, Popover, Tag, Tooltip } from "antd"
 import {
-  CheckIcon,
-  CopyIcon,
-  GitBranchIcon,
-  InfoIcon,
+  Check as CheckIcon,
+  Copy as CopyIcon,
+  GitBranch as GitBranchIcon,
+  Info as InfoIcon,
   Pen,
   PlayCircle,
   RotateCcw,
   Square,
-  Volume2Icon
+  Volume2 as Volume2Icon
 } from "lucide-react"
-import { EditMessageForm } from "./EditMessageForm"
+import React, { useEffect } from "react"
 import { useTranslation } from "react-i18next"
-import { MessageSource } from "./MessageSource"
-import { useTTS } from "@/hooks/useTTS"
-import { tagColors } from "@/utils/color"
-import { removeModelSuffix } from "@/db/dexie/models"
+import Markdown from "../../Common/Markdown"
+import { ActionInfo } from "./ActionInfo"
+import { EditMessageForm } from "./EditMessageForm"
 import { GenerationInfo } from "./GenerationInfo"
-import { parseReasoning } from "@/libs/reasoning"
-import { humanizeMilliseconds } from "@/utils/humanize-milliseconds"
-import { useStorage } from "@plasmohq/storage/hook"
+import { MessageSource } from "./MessageSource"
 import { PlaygroundUserMessageBubble } from "./PlaygroundUserMessage"
-import { copyToClipboard } from "@/utils/clipboard"
-import { ChatDocuments } from "@/models/ChatTypes"
-import { PiGitBranch } from "react-icons/pi"
 
 type Props = {
   message: string
@@ -174,11 +173,11 @@ export const PlaygroundMessage = (props: Props) => {
               ? props.name === "chrome::gemini-nano::page-assist"
                 ? "Gemini Nano"
                 : removeModelSuffix(
-                    `${props?.modelName || props?.name}`?.replaceAll(
-                      /accounts\/[^\/]+\/models\//g,
-                      ""
-                    )
+                  `${props?.modelName || props?.name}`?.replaceAll(
+                    /accounts\/[^\/]+\/models\//g,
+                    ""
                   )
+                )
               : "You"}
           </span>
 
@@ -237,10 +236,9 @@ export const PlaygroundMessage = (props: Props) => {
                 </>
               ) : (
                 <p
-                  className={`prose dark:prose-invert whitespace-pre-line prose-p:leading-relaxed prose-pre:p-0 dark:prose-dark ${
-                    props.message_type &&
+                  className={`prose dark:prose-invert whitespace-pre-line prose-p:leading-relaxed prose-pre:p-0 dark:prose-dark ${props.message_type &&
                     "italic text-gray-500 dark:text-gray-400 text-sm"
-                  }
+                    }
                   ${checkWideMode ? "max-w-none" : ""}
                   `}>
                   {props.message}
@@ -330,15 +328,14 @@ export const PlaygroundMessage = (props: Props) => {
           )}
           {!props.isProcessing && !editMode ? (
             <div
-              className={`space-x-2 gap-2 flex ${
-                props.currentMessageIndex !== props.totalMessages - 1
+              className={`space-x-2 gap-2 flex ${props.currentMessageIndex !== props.totalMessages - 1
                   ? //  there is few style issue so i am commenting this out for v1.4.5 release
-                    // next release we will fix this
-                    "invisible group-hover:visible"
+                  // next release we will fix this
+                  "invisible group-hover:visible"
                   : // ? "hidden group-hover:flex"
-                    ""
+                  ""
                 // : "flex"
-              }`}>
+                }`}>
               {props.isTTSEnabled && (
                 <Tooltip title={t("tts")}>
                   <button

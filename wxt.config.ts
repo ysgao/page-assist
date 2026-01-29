@@ -1,6 +1,7 @@
-import { defineConfig } from "wxt"
 import react from "@vitejs/plugin-react"
+import { nodePolyfills } from "vite-plugin-node-polyfills"
 import topLevelAwait from "vite-plugin-top-level-await"
+import { defineConfig } from "wxt"
 
 const chromeMV3Permissions = [
   "storage",
@@ -8,7 +9,6 @@ const chromeMV3Permissions = [
   "activeTab",
   "scripting",
   "declarativeNetRequest",
-  "action",
   "unlimitedStorage",
   "contextMenus",
   "tts",
@@ -34,16 +34,19 @@ export default defineConfig({
   vite: () => ({
     plugins: [
       react(),
+      nodePolyfills({
+        include: ["buffer", "stream", "util", "process"],
+        globals: {
+          Buffer: true,
+          global: true,
+          process: true
+        }
+      }),
       topLevelAwait({
         promiseExportName: "__tla",
         promiseImportName: (i) => `__tla_${i}`
       }) as any
-    ],
-    build: {
-      rollupOptions: {
-        external: ["langchain", "@langchain/community"]
-      }
-    }
+    ]
   }),
   entrypointsDir:
     process.env.TARGET === "firefox" ? "entries-firefox" : "entries",
@@ -59,7 +62,7 @@ export default defineConfig({
     description: "__MSG_extDescription__",
     default_locale: "en",
     action: {},
-    author: "n4ze3m",
+    author: { email: "n4ze3m@example.com" },
     browser_specific_settings:
       process.env.TARGET === "firefox"
         ? {
@@ -91,7 +94,7 @@ export default defineConfig({
         {
           extension_pages:
             "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
-        } :  "script-src 'self' 'wasm-unsafe-eval' blob:; object-src 'self'; worker-src 'self' blob:;",
+        } : undefined,
     permissions:
       process.env.TARGET === "firefox"
         ? firefoxMV2Permissions

@@ -1,26 +1,24 @@
+import { PromptSelect } from "@/components/Common/PromptSelect"
+import { CurrentChatModelSettings } from "@/components/Common/Settings/CurrentChatModelSettings"
+import { Sidebar } from "@/components/Option/Sidebar"
+import { isFireFoxPrivateMode } from "@/utils/is-private-mode"
+import { useStorage } from "@plasmohq/storage/hook"
+import { Drawer, notification, Tooltip } from "antd"
+import {
+  Boxes,
+  BrainCog,
+  Eraser,
+  History as HistoryIcon,
+  Settings,
+  SquarePlus,
+  X
+} from "lucide-react"
+import React from "react"
+import { useTranslation } from "react-i18next"
+import { BsIncognito } from "react-icons/bs"
+import { Link } from "react-router-dom"
 import logoImage from "~/assets/icon.png"
 import { useMessage } from "~/hooks/useMessage"
-import { Link } from "react-router-dom"
-import { Tooltip, Drawer, notification } from "antd"
-import {
-  BoxesIcon,
-  BrainCog,
-  CogIcon,
-  EraserIcon,
-  // EraserIcon,
-  HistoryIcon,
-  PlusSquare,
-  XIcon,
-  MessageSquareShareIcon
-} from "lucide-react"
-import { useTranslation } from "react-i18next"
-import { CurrentChatModelSettings } from "@/components/Common/Settings/CurrentChatModelSettings"
-import React from "react"
-import { useStorage } from "@plasmohq/storage/hook"
-import { PromptSelect } from "@/components/Common/PromptSelect"
-import { Sidebar } from "@/components/Option/Sidebar"
-import { BsIncognito } from "react-icons/bs"
-import { isFireFoxPrivateMode } from "@/utils/is-private-mode"
 
 type SidepanelHeaderProps = {
   sidebarOpen?: boolean
@@ -90,13 +88,13 @@ export const SidepanelHeader = ({
                 browser.tabs.create({ url })
               }}
               className="flex items-center space-x-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-700">
-              <MessageSquareShareIcon className="size-4 text-gray-500 dark:text-gray-400" />
+              <MessageSquareShare className="size-4 text-gray-500 dark:text-gray-400" />
             </button>
           </Tooltip>
         ) : null}
         {isEmbedding ? (
           <Tooltip title={t("tooltip.embed")}>
-            <BoxesIcon className="size-4 text-gray-500 dark:text-gray-400 animate-bounce animate-infinite" />
+            <Boxes className="size-4 text-gray-500 dark:text-gray-400 animate-bounce animate-infinite" />
           </Tooltip>
         ) : null}
 
@@ -107,7 +105,7 @@ export const SidepanelHeader = ({
               clearChat()
             }}
             className="flex items-center space-x-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-700">
-            <PlusSquare className="size-4 text-gray-500 dark:text-gray-400" />
+            <SquarePlus className="size-4 text-gray-500 dark:text-gray-400" />
           </button>
         )}
 
@@ -140,7 +138,7 @@ export const SidepanelHeader = ({
               setHistory([])
             }}
             className="flex items-center space-x-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-700">
-            <EraserIcon className="size-4 text-gray-500 dark:text-gray-400" />
+            <Eraser className="size-4 text-gray-500 dark:text-gray-400" />
           </button>
         )}
         <Tooltip title={t("tooltip.history")}>
@@ -169,7 +167,7 @@ export const SidepanelHeader = ({
           </Tooltip>
         )}
         <Link to="/settings">
-          <CogIcon className="size-4 text-gray-500 dark:text-gray-400" />
+          <Settings className="size-4 text-gray-500 dark:text-gray-400" />
         </Link>
       </div>
       <CurrentChatModelSettings
@@ -186,7 +184,7 @@ export const SidepanelHeader = ({
             </div>
 
             <button onClick={() => setSidebarOpen(false)}>
-              <XIcon className="size-4 text-gray-500 dark:text-gray-400" />
+              <X className="size-4 text-gray-500 dark:text-gray-400" />
             </button>
           </div>
         }
@@ -204,7 +202,7 @@ export const SidepanelHeader = ({
           setSelectedSystemPrompt={setSelectedSystemPrompt}
           clearChat={clearChat}
           historyId={historyId}
-          setSystemPrompt={(e) => {}}
+          setSystemPrompt={(e) => { }}
           temporaryChat={false}
           history={history}
           selectedModel={selectedModel}
