@@ -1,3 +1,4 @@
+/*
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { MemoryRouter } from "react-router-dom"
 import { useEffect, useState } from "react"
@@ -58,3 +59,4 @@ function IndexOption() {
 }
 
 export default IndexOption
+*/

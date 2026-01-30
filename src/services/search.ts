@@ -275,7 +275,6 @@ export const setSearchSettings = async ({
   exaAPIKey,
   firecrawlAPIKey,
   ollamaSearchApiKey,
-  geminiSearchApiKey,
   kagiApiKey,
   perplexityApiKey,
   domainFilterList,

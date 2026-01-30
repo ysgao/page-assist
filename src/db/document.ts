@@ -1,5 +1,5 @@
+import { arrayBufferToBase64, base64ToArrayBuffer, compressText, decompressData } from "@/utils/compress"
 import { deleteVector, deleteVectorByFileId } from "./vector"
-import { compressText, decompressData, arrayBufferToBase64, base64ToArrayBuffer } from "@/utils/compress"
 
 export type Source = {
     source_id: string
@@ -45,10 +45,10 @@ export class PageAssistDocument {
                         Object.keys(result)
                             .filter(key => key.startsWith('pa_document_'))
                             .map(async (key) => {
-                                const doc = result[key];
-                                if (doc.compressedContent) {
+                                const doc = result[key] as any;
+                                if (((doc as any).compressedContent)) {
                                     const decompressedContent = await decompressData(
-                                        base64ToArrayBuffer(doc.compressedContent)
+                                        base64ToArrayBuffer(((doc as any).compressedContent))
                                     );
                                     return JSON.parse(decompressedContent);
                                 }
@@ -67,13 +67,13 @@ export class PageAssistDocument {
                 if (chrome.runtime.lastError) {
                     reject(chrome.runtime.lastError)
                 } else {
-                    if (result[id].compressedContent) {
+                    if ((result[id] as any).compressedContent) {
                         const decompressedContent = await decompressData(
-                            base64ToArrayBuffer(result[id].compressedContent)
+                            base64ToArrayBuffer((result[id] as any).compressedContent)
                         );
                         resolve(JSON.parse(decompressedContent));
                     } else {
-                        resolve(result[id]);
+                        resolve(result[id] as any);
                     }
                 }
             })

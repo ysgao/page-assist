@@ -1,9 +1,9 @@
-import { getOllamaURL, isOllamaRunning } from "../services/ollama"
-import { browser } from "wxt/browser"
-import { clearBadge, streamDownload, cancelDownload } from "@/utils/pull-ollama"
-import { Storage } from "@plasmohq/storage"
 import { getInitialConfig } from "@/services/action"
-import { getCustomCopilotPrompts, getCopilotPromptsEnabledState, type CustomCopilotPrompt } from "@/services/application"
+import { getCopilotPromptsEnabledState, getCustomCopilotPrompts } from "@/services/application"
+import { cancelDownload, clearBadge, streamDownload } from "@/utils/pull-ollama"
+import { Storage } from "@plasmohq/storage"
+import { browser } from "wxt/browser"
+import { getOllamaURL, isOllamaRunning } from "../services/ollama"
 
 export default defineBackground({
   main() {
@@ -87,23 +87,25 @@ export default defineBackground({
       try {
         storage.watch({
           actionIconClick: (value) => {
-            const oldValue = value?.oldValue || "webui"
-            const newValue = value?.newValue || "webui"
+            const oldValue = (value?.oldValue as string) || "webui"
+            const newValue = (value?.newValue as string) || "webui"
             if (oldValue !== newValue) {
               actionIconClick = newValue
             }
           },
           contextMenuClick: (value) => {
-            const oldValue = value?.oldValue || "sidePanel"
-            const newValue = value?.newValue || "sidePanel"
+            const oldValue = (value?.oldValue as string) || "sidePanel"
+            const newValue = (value?.newValue as string) || "sidePanel"
             if (oldValue !== newValue) {
               contextMenuClick = newValue
-              browser.contextMenus.remove(contextMenuId[oldValue]).catch(() => {})
-              browser.contextMenus.create({
-                id: contextMenuId[newValue],
-                title: contextMenuTitle[newValue],
-                contexts: ["page", "selection"]
-              }).catch(() => {})
+              try { browser.contextMenus.remove(contextMenuId[oldValue as keyof typeof contextMenuId]) } catch (e) { }
+              try {
+                browser.contextMenus.create({
+                  id: contextMenuId[newValue as keyof typeof contextMenuId],
+                  title: contextMenuTitle[newValue as keyof typeof contextMenuTitle],
+                  contexts: ["page", "selection"]
+                })
+              } catch (e) { }
             }
           },
           customCopilotPrompts: async () => {
@@ -122,7 +124,7 @@ export default defineBackground({
                     type: "youtube_summarize_setting_changed",
                     enabled: newValue
                   })
-                  .catch(() => {})
+                  .catch(() => { })
               }
             })
           }
@@ -134,10 +136,10 @@ export default defineBackground({
         // Clean up existing menus to prevent duplicates
         try {
           await browser.contextMenus.remove(contextMenuId.webui)
-        } catch (e) {}
+        } catch (e) { }
         try {
           await browser.contextMenus.remove(contextMenuId.sidePanel)
-        } catch (e) {}
+        } catch (e) { }
 
         try {
           await browser.contextMenus.create({
@@ -145,7 +147,7 @@ export default defineBackground({
             title: contextMenuTitle[contextMenuClick],
             contexts: ["page", "selection"]
           })
-        } catch (e) {}
+        } catch (e) { }
 
         // Create built-in copilot menus
         await createBuiltinCopilotMenus()
@@ -168,7 +170,7 @@ export default defineBackground({
         const enabled = await storage.get("youtubeAutoSummarize")
         return Promise.resolve({ enabled: enabled || false })
       } else if (message.type === "sidepanel") {
-        await browser.sidebarAction.open()
+        await (browser as any).sidebarAction.open()
       } else if (message.type === "pull_model") {
         const ollamaURL = await getOllamaURL()
 
@@ -215,14 +217,14 @@ export default defineBackground({
           }
           // Ensure we have a headers object to work with
           if (options.headers instanceof Headers) {
-             // Should have been converted by proxy, but just in case
-             const headersObj: Record<string, string> = {};
-             options.headers.forEach((value: string, key: string) => {
-               headersObj[key] = value;
-             });
-             options.headers = headersObj;
+            // Should have been converted by proxy, but just in case
+            const headersObj: Record<string, string> = {};
+            options.headers.forEach((value: string, key: string) => {
+              headersObj[key] = value;
+            });
+            options.headers = headersObj;
           }
-          
+
           // Add a default User-Agent if not present
           // Note: Host permissions are required for this to work on some domains
           if (!options.headers["User-Agent"] && !options.headers["user-agent"]) {
@@ -266,8 +268,8 @@ export default defineBackground({
     })
 
     const contextMenuTitle = {
-      webui: browser.i18n.getMessage("openOptionToChat"),
-      sidePanel: browser.i18n.getMessage("openSidePanelToChat")
+      webui: browser.i18n.getMessage("openOptionToChat" as any),
+      sidePanel: browser.i18n.getMessage("openSidePanelToChat" as any)
     }
 
     browser.contextMenus.onClicked.addListener(async (info, tab) => {

@@ -1,13 +1,13 @@
 import {
-    SimpleChatModel,
-    type BaseChatModelParams
-} from "@langchain/core/language_models/chat_models"
-import type { BaseLanguageModelCallOptions } from "@langchain/core/language_models/base"
-import {
     CallbackManagerForLLMRun,
     Callbacks
 } from "@langchain/core/callbacks/manager"
-import { BaseMessage, AIMessageChunk } from "@langchain/core/messages"
+import type { BaseLanguageModelCallOptions } from "@langchain/core/language_models/base"
+import {
+    SimpleChatModel,
+    type BaseChatModelParams
+} from "@langchain/core/language_models/chat_models"
+import { AIMessageChunk, BaseMessage } from "@langchain/core/messages"
 import { ChatGenerationChunk } from "@langchain/core/outputs"
 
 export interface AnthropicMessageOptions {
@@ -71,7 +71,7 @@ function convertMessagesToAnthropicFormat(messages: BaseMessage[]): Array<{
                         if ("text" in block && block.type === "text") {
                             anthropicContent.push({
                                 type: "text",
-                                text: block.text
+                                text: (block as any).text
                             })
                         } else if ("image_url" in block && block.type === "image_url") {
                             const imageUrl = block.image_url
@@ -100,8 +100,8 @@ function convertMessagesToAnthropicFormat(messages: BaseMessage[]): Array<{
                                 })
                             } else if (typeof imageUrl === "object" && "url" in imageUrl) {
                                 const url = imageUrl.url
-                                if (url.startsWith("data:image/")) {
-                                    const [header, data] = url.split(",")
+                                if ((url as any).startsWith("data:image/")) {
+                                    const [header, data] = (url as any).split(",")
                                     const mediaType = header.match(/data:([^;]+)/)?.[1] || "image/jpeg"
                                     const actualMediaType = detectImageMediaType(data) || mediaType
 

@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 type SpeechRecognitionEvent = {
   results: SpeechRecognitionResultList
@@ -62,7 +62,7 @@ const useEventCallback = <T extends (...args: any[]) => any>(
   fn: T,
   dependencies: any[]
 ) => {
-  const ref = useRef<T>()
+  const ref = useRef<T | undefined>(undefined)
 
   useEffect(() => {
     ref.current = fn
@@ -81,9 +81,9 @@ export const useSpeechRecognition = (
   props: SpeechRecognitionProps = {}
 ): SpeechRecognitionHook => {
   const {
-    onEnd = () => {},
-    onResult = () => {},
-    onError = () => {},
+    onEnd = () => { },
+    onResult = () => { },
+    onError = () => { },
     autoStop = false,
     autoStopTimeout = 5000,
     autoSubmit = false

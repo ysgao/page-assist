@@ -109,7 +109,7 @@ export class PageAssistVectorDb {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError)
         } else {
-          resolve(Object.values(result))
+          resolve(Object.values(result) as any)
         }
       })
     })
@@ -142,7 +142,7 @@ export const insertVector = async (
 
 export const getAllVector = async () => {
   const db = new PageAssistVectorDb()
-  const data =  await db.getAll()
+  const data = await db.getAll()
   return formatVector(data)
 }
 
@@ -172,5 +172,5 @@ export const exportVectors = async () => {
 
 export const importVectors = async (data: VectorData[]) => {
   const db = new PageAssistVectorDb()
-  return db.saveImportedData(data) 
+  return db.saveImportedData(data)
 }

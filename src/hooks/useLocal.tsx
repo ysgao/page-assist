@@ -5,7 +5,7 @@ export default function useLocal(key: string) {
 
   React.useEffect(() => {
     chrome.storage.local.get(key, (result) => {
-      setValue(result[key])
+      setValue(result[key] as string)
     })
   }, [key])
 

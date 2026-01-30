@@ -161,12 +161,12 @@ export class ChatOllama
         this.thinking = fields.thinking;
     }
 
-    protected getLsParams(options: this["ParsedCallOptions"]) {
+    public getLsParams(options: this["ParsedCallOptions"]) {
         const params = this.invocationParams(options);
         return {
             ls_provider: "ollama",
             ls_model_name: this.model,
-            ls_model_type: "chat",
+            ls_model_type: "chat" as const,
             ls_temperature: this.temperature ?? undefined,
             ls_stop: this.stop,
             ls_max_tokens: params.options.num_predict,

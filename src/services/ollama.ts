@@ -1,17 +1,16 @@
+import { ollamaFormatAllCustomModels } from "@/db/dexie/models"
+import { getAllModelStates } from "@/db/dexie/modelState"
+import { getAllModelNicknames } from "@/db/dexie/nickname"
+import { fetchWithProxy } from "@/libs/fetch-proxy"
 import { Storage } from "@plasmohq/storage"
 import { cleanUrl } from "../libs/clean-url"
 import { urlRewriteRuntime } from "../libs/runtime"
-import { getChromeAIModel } from "./chrome"
 import {
   getOllamaEnabled,
   setNoOfRetrievedDocs,
   setTotalFilePerKB
 } from "./app"
-import fetcher from "@/libs/fetcher"
-import { fetchWithProxy } from "@/libs/fetch-proxy"
-import { ollamaFormatAllCustomModels } from "@/db/dexie/models"
-import { getAllModelNicknames } from "@/db/dexie/nickname"
-import { getAllModelStates } from "@/db/dexie/modelState"
+import { getChromeAIModel } from "./chrome"
 
 const storage = new Storage()
 
@@ -93,7 +92,7 @@ export const isOllamaRunning = async () => {
     const baseUrl = await getOllamaURL()
     const response = await fetchWithProxy(`${cleanUrl(baseUrl)}`)
     if (!response.ok) {
-      throw new Error(response.statusText)
+      throw new Error((response as any).statusText)
     }
     return true
   } catch (e) {
@@ -124,7 +123,7 @@ export const getAllModels = async ({
       if (returnEmpty) {
         return []
       }
-      throw new Error(response.statusText)
+      throw new Error((response as any).statusText)
     }
     const json = await response.text().then(text => JSON.parse(text))
 
@@ -207,7 +206,7 @@ export const deleteModel = async (model: string) => {
   })
 
   if (!response.ok) {
-    throw new Error(response.statusText)
+    throw new Error((response as any).statusText)
   }
   return "ok"
 }

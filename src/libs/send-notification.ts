@@ -9,7 +9,7 @@ export const sendNotification = async (title: string, message: string) => {
     if (sendNotificationAfterIndexing) {
       browser.notifications.create({
         type: "basic",
-        iconUrl: browser.runtime.getURL("/icon/128.png"),
+        iconUrl: browser.runtime.getURL("/icon/128.png" as any),
         title,
         message
       })

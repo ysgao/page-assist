@@ -1,9 +1,9 @@
 import { getAllOpenAIModels } from "@/libs/openai"
+import { getAllModelNicknames } from "./nickname"
 import {
   getAllOpenAIConfigFB,
   getOpenAIConfigById as providerInfo
 } from "./openai"
-import { getAllModelNicknames } from "./nickname"
 
 type Model = {
   id: string
@@ -140,7 +140,7 @@ export class ModelDb {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError)
         } else {
-          const data = Object.keys(result).map((key) => result[key])
+          const data = Object.keys(result).map((key) => result[key] as any)
           resolve(data)
         }
       })
@@ -165,7 +165,7 @@ export class ModelDb {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError)
         } else {
-          resolve(result[id])
+          resolve(result[id] as any)
         }
       })
     })
@@ -243,7 +243,7 @@ export const createModelFB = async (model: any) => {
   try {
     const db = new ModelDb()
     await db.create(model)
-  } catch (e) {}
+  } catch (e) { }
 }
 
 export const getAllModelsExT = async () => {
@@ -447,7 +447,7 @@ export const dynamicFetchOllama2 = async ({
   providerId: string
   customHeaders?: { key: string; value: string }[]
 }) => {
- 
+
 
   const models = await getAllOpenAIModels({ baseUrl, customHeaders })
   const ollama2Models = models.map((e) => {

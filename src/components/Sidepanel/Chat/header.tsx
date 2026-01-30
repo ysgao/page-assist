@@ -9,6 +9,7 @@ import {
   BrainCog,
   Eraser,
   History as HistoryIcon,
+  MessageSquareShare,
   Settings,
   SquarePlus,
   X

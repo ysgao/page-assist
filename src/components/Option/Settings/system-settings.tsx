@@ -1,20 +1,19 @@
 import { BetaTag } from "@/components/Common/Beta"
 import { useFontSize } from "@/context/FontSizeProvider"
+import { PageAssistDatabase } from "@/db/dexie/chat"
 import { useMessageOption } from "@/hooks/useMessageOption"
 import {
   exportPageAssistData,
   importPageAssistData
 } from "@/libs/export-import"
+import { toBase64 } from "@/libs/to-base64"
 import { Storage } from "@plasmohq/storage"
 import { useStorage } from "@plasmohq/storage/hook"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Select, notification, Switch } from "antd"
-import { useTranslation } from "react-i18next"
+import { notification, Select, Switch } from "antd"
 import { Loader2, RotateCcw, Upload } from "lucide-react"
-import { toBase64 } from "@/libs/to-base64"
-import { PageAssistDatabase } from "@/db/dexie/chat"
-import { isFireFox, isFireFoxPrivateMode } from "@/utils/is-private-mode"
-import { firefoxSyncDataForPrivateMode } from "@/db/dexie/firefox-sync"
+import { useTranslation } from "react-i18next"
+// import { firefoxSyncDataForPrivateMode } from "@/db/dexie/firefox-sync"
 
 export const SystemSettings = () => {
   const { t } = useTranslation(["settings", "knowledge"])
@@ -76,9 +75,9 @@ export const SystemSettings = () => {
         message: "Imported data successfully"
       })
 
-      setTimeout(() => { 
-        window.location.reload() 
-      }, 1000)   
+      setTimeout(() => {
+        window.location.reload()
+      }, 1000)
     },
     onError: (error) => {
       console.error("Import error:", error)
@@ -88,21 +87,23 @@ export const SystemSettings = () => {
     }
   })
 
-  const syncFirefoxData = useMutation({
-    mutationFn: firefoxSyncDataForPrivateMode,
-    onSuccess: () => {
-      notification.success({
-        message:
-          "Firefox data synced successfully, You don't need to do this again"
-      })
-    },
-    onError: (error) => {
-      console.log(error)
-      notification.error({
-        message: "Firefox data sync failed"
-      })
-    }
-  })
+  /*
+    const syncFirefoxData = useMutation({
+      mutationFn: firefoxSyncDataForPrivateMode,
+      onSuccess: () => {
+        notification.success({
+          message:
+            "Firefox data synced successfully, You don't need to do this again"
+        })
+      },
+      onError: (error) => {
+        console.log(error)
+        notification.error({
+          message: "Firefox data sync failed"
+        })
+      }
+    })
+  */
 
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -204,6 +205,7 @@ export const SystemSettings = () => {
           }}
         />
       </div>
+      {/*
       {isFireFox && !isFireFoxPrivateMode && (
         <div className="flex flex-col sm:flex-row mb-3 gap-3 sm:gap-0 sm:justify-between sm:items-center">
           <span className="text-gray-700 dark:text-neutral-50">
@@ -229,6 +231,7 @@ export const SystemSettings = () => {
           </button>
         </div>
       )}
+      */}
       <div className="flex flex-col sm:flex-row mb-3 gap-3 sm:gap-0 sm:justify-between sm:items-center">
         <span className="text-gray-700 dark:text-neutral-50">
           {t("generalSettings.system.storageSyncEnabled.label")}
@@ -247,14 +250,14 @@ export const SystemSettings = () => {
         <span className="text-gray-700 dark:text-neutral-50">
           {t("generalSettings.system.webuiBtnSidePanel.label")}
         </span>
-         <div>
+        <div>
           <Switch
-          checked={webuiBtnSidePanel}
-          onChange={(checked) => {
-            setWebuiBtnSidePanel(checked)
-          }}
-        />
-         </div>
+            checked={webuiBtnSidePanel}
+            onChange={(checked) => {
+              setWebuiBtnSidePanel(checked)
+            }}
+          />
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row mb-3 gap-3 sm:gap-0 sm:justify-between sm:items-center">

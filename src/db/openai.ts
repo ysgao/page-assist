@@ -1,6 +1,5 @@
-import { cleanUrl } from "@/libs/clean-url"
-import { deleteAllModelsByProviderId } from "./models"
 import { OpenAIModelConfig } from "./dexie/types"
+import { deleteAllModelsByProviderId } from "./models"
 
 export const generateID = () => {
   return "openai-xxxx-xxx-xxxx".replace(/[x]/g, () => {
@@ -22,7 +21,7 @@ export class OpenAIModelDb {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError)
         } else {
-          const data = Object.keys(result).map((key) => result[key])
+          const data = Object.keys(result).map((key) => result[key] as any)
           resolve(data)
         }
       })
@@ -47,7 +46,7 @@ export class OpenAIModelDb {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError)
         } else {
-          resolve(result[id])
+          resolve(result[id] as any)
         }
       })
     })

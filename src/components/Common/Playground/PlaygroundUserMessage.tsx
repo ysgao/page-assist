@@ -1,21 +1,21 @@
 import { useTTS } from "@/hooks/useTTS"
+import { ChatDocuments } from "@/models/ChatTypes"
+import { tagColors } from "@/utils/color"
 import { useStorage } from "@plasmohq/storage/hook"
-import React from "react"
-import { useTranslation } from "react-i18next"
-import { EditMessageForm } from "./EditMessageForm"
 import { Image, Tag, Tooltip } from "antd"
 import { CheckIcon, CopyIcon, Pen, PlayIcon, Square } from "lucide-react"
-import { HumanMessage } from "./HumanMessge"
-import { ChatDocuments } from "@/models/ChatTypes"
+import React from "react"
+import { useTranslation } from "react-i18next"
 import { DocumentChip } from "./DocumentChip"
 import { DocumentFile } from "./DocumentFile"
-import { tagColors } from "@/utils/color"
+import { EditMessageForm } from "./EditMessageForm"
+import { HumanMessage } from "./HumanMessge"
 type Props = {
   message: string
   message_type?: string
   hideCopy?: boolean
-  botAvatar?: JSX.Element
-  userAvatar?: JSX.Element
+  botAvatar?: React.ReactNode
+  userAvatar?: React.ReactNode
   isBot: boolean
   name: string
   images?: string[]
@@ -98,9 +98,8 @@ export const PlaygroundUserMessageBubble: React.FC<Props> = (props) => {
         <div
           dir="auto"
           data-is-not-editable={!editMode}
-          className={`message-bubble bg-gray-50 dark:bg-[#242424] rounded-3xl prose dark:prose-invert break-words text-primary min-h-7 prose-p:opacity-95 prose-strong:opacity-100 bg-foreground border border-input-border max-w-[100%] sm:max-w-[90%] px-4 py-2.5 rounded-br-lg dark:border-[#2a2a2a] ${
-            props.message_type && !editMode ? "italic" : ""
-          }`}>
+          className={`message-bubble bg-gray-50 dark:bg-[#242424] rounded-3xl prose dark:prose-invert break-words text-primary min-h-7 prose-p:opacity-95 prose-strong:opacity-100 bg-foreground border border-input-border max-w-[100%] sm:max-w-[90%] px-4 py-2.5 rounded-br-lg dark:border-[#2a2a2a] ${props.message_type && !editMode ? "italic" : ""
+            }`}>
           <HumanMessage message={props.message} />
         </div>
       )}
@@ -108,9 +107,8 @@ export const PlaygroundUserMessageBubble: React.FC<Props> = (props) => {
       {editMode && (
         <div
           dir="auto"
-          className={`message-bubble bg-gray-50 dark:bg-[#2a2a2a] rounded-3xl prose dark:prose-invert break-words text-primary min-h-7 prose-p:opacity-95 prose-strong:opacity-100 bg-foreground border border-input-border max-w-[100%] sm:max-w-[90%] px-4 py-2.5 rounded-br-lg dark:border-[#2a2a2a] ${
-            props.message_type && !editMode ? "italic" : ""
-          }`}>
+          className={`message-bubble bg-gray-50 dark:bg-[#2a2a2a] rounded-3xl prose dark:prose-invert break-words text-primary min-h-7 prose-p:opacity-95 prose-strong:opacity-100 bg-foreground border border-input-border max-w-[100%] sm:max-w-[90%] px-4 py-2.5 rounded-br-lg dark:border-[#2a2a2a] ${props.message_type && !editMode ? "italic" : ""
+            }`}>
           <div className="w-screen max-w-[100%]">
             <EditMessageForm
               value={props.message}
@@ -141,15 +139,14 @@ export const PlaygroundUserMessageBubble: React.FC<Props> = (props) => {
 
       {!props.isProcessing && !editMode ? (
         <div
-          className={`space-x-2 gap-2 flex ${
-            props.currentMessageIndex !== props.totalMessages - 1
+          className={`space-x-2 gap-2 flex ${props.currentMessageIndex !== props.totalMessages - 1
               ? //  there is few style issue so i am commenting this out for v1.4.5 release
-                // next release we will fix this
-                "invisible group-hover:visible"
+              // next release we will fix this
+              "invisible group-hover:visible"
               : // ? "hidden group-hover:flex"
-                ""
+              ""
             // : "flex"
-          }`}>
+            }`}>
           {props.isTTSEnabled && (
             <Tooltip title={t("tts")}>
               <button

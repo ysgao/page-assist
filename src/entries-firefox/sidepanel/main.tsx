@@ -1,3 +1,5 @@
+// File commented out to disable Firefox build
+/*
 import React from "react"
 import ReactDOM from "react-dom/client"
 import IndexSidepanel from "./App"
@@ -7,3 +9,4 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <IndexSidepanel />
   </React.StrictMode>
 )
+*/

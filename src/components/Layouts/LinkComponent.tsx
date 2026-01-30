@@ -7,7 +7,7 @@ function classNames(...classes: string[]) {
 
 export const LinkComponent = (item: {
   href: string
-  name: string | JSX.Element
+  name: string | React.ReactNode
   icon: any
   current: string
   beta?: boolean

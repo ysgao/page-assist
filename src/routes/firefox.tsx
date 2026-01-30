@@ -1,3 +1,4 @@
+/*
 // this is a temp fix for firefox
 // because chunks getting 4mb+ and it's not working on firefox addon store
 import { lazy } from "react"
@@ -46,3 +47,4 @@ export const SidepanelRoutingFirefox = () => {
     </Routes>
   )
 }
+*/

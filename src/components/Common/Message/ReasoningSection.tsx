@@ -1,13 +1,13 @@
-import React from "react"
 import { Collapse } from "antd"
 import { Brain } from "lucide-react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
-import remarkMath from "remark-math"
-import rehypeKatex from "rehype-katex"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism"
+import rehypeKatex from "rehype-katex"
+import remarkGfm from "remark-gfm"
+import remarkMath from "remark-math"
 
 const { Panel } = Collapse
 
@@ -65,18 +65,20 @@ export const ReasoningSection: React.FC<ReasoningSectionProps> = ({
               remarkPlugins={[remarkGfm, remarkMath]}
               rehypePlugins={[rehypeKatex]}
               components={{
-                code({ node, inline, className, children, ...props }) {
+                code({ node, className, children, ...props }) {
                   const match = /language-(\w+)/.exec(className || "")
+                  const inline = !match
+                  const props_ = props as any
                   return !inline && match ? (
                     <SyntaxHighlighter
                       style={oneDark as any}
                       language={match[1]}
                       PreTag="div"
-                      {...props}>
+                      {...props_}>
                       {String(children).replace(/\n$/, "")}
                     </SyntaxHighlighter>
                   ) : (
-                    <code className={className} {...props}>
+                    <code className={className} {...props_}>
                       {children}
                     </code>
                   )

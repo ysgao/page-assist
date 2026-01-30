@@ -1,4 +1,9 @@
-import { type ClientOptions, OpenAI as OpenAIClient, } from "openai"
+import { CallbackManagerForLLMRun } from "@langchain/core/callbacks/manager"
+import { TokenUsage } from "@langchain/core/language_models/base"
+import {
+    BaseChatModel,
+    BaseChatModelParams
+} from "@langchain/core/language_models/chat_models"
 import {
     AIMessage,
     BaseMessage,
@@ -9,33 +14,28 @@ import {
     SystemMessageChunk,
     ToolMessageChunk
 } from "@langchain/core/messages"
-import { ChatGenerationChunk, ChatResult } from "@langchain/core/outputs"
-import { getEnvironmentVariable } from "@langchain/core/utils/env"
-import {
-    BaseChatModel,
-    BaseChatModelParams
-} from "@langchain/core/language_models/chat_models"
-import { convertToOpenAITool } from "@langchain/core/utils/function_calling"
-import {
-    RunnablePassthrough,
-    RunnableSequence
-} from "@langchain/core/runnables"
 import {
     JsonOutputParser,
     StructuredOutputParser
 } from "@langchain/core/output_parsers"
 import { JsonOutputKeyToolsParser } from "@langchain/core/output_parsers/openai_tools"
-import { wrapOpenAIClientError } from "./utils/openai.js"
+import { ChatGenerationChunk, ChatResult } from "@langchain/core/outputs"
+import {
+    RunnablePassthrough,
+    RunnableSequence
+} from "@langchain/core/runnables"
+import { getEnvironmentVariable } from "@langchain/core/utils/env"
+import { convertToOpenAITool } from "@langchain/core/utils/function_calling"
 import {
     ChatOpenAICallOptions,
     getEndpoint,
     OpenAIChatInput as OldOpenAIChatInput,
     OpenAICoreRequestOptions
 } from "@langchain/openai"
-import { CallbackManagerForLLMRun } from "@langchain/core/callbacks/manager"
-import { TokenUsage } from "@langchain/core/language_models/base"
-import { LegacyOpenAIInput } from "./types.js"
+import { type ClientOptions, OpenAI as OpenAIClient, } from "openai"
 import { CustomAIMessageChunk } from "./CustomAIMessageChunk.js"
+import { LegacyOpenAIInput } from "./types.js"
+import { wrapOpenAIClientError } from "./utils/openai.js"
 
 type OpenAIRoleEnum = "system" | "assistant" | "user" | "function" | "tool"
 type ReasoningEffort = 'low' | 'medium' | 'high' | null
@@ -76,7 +76,7 @@ export function messageToOpenAIRole(message: BaseMessage): OpenAIRoleEnum {
             return extractGenericMessageCustomRole(message) as OpenAIRoleEnum
         }
         default:
-            return type
+            return type as OpenAIRoleEnum
     }
 }
 function openAIResponseToChatMessage(
@@ -84,10 +84,13 @@ function openAIResponseToChatMessage(
 ) {
     switch (message.role) {
         case "assistant":
-            return new AIMessage(message.content || "", {
-                // function_call: message.function_call,
-                // tool_calls: message.tool_calls
-                // reasoning_content: message?.reasoning_content || null
+            return new AIMessage({
+                content: message.content || "",
+                additional_kwargs: {
+                    // function_call: message.function_call,
+                    // tool_calls: message.tool_calls
+                    // reasoning_content: message?.reasoning_content || null
+                }
             })
         default:
             return new ChatMessage(message.content || "", message.role ?? "unknown")
@@ -414,7 +417,7 @@ export class CustomChatOpenAI<
             value: void 0
         })
         this.openAIApiKey =
-            fields?.openAIApiKey ?? getEnvironmentVariable("OPENAI_API_KEY")
+            (fields?.openAIApiKey ?? getEnvironmentVariable("OPENAI_API_KEY")) as string
 
         this.modelName = fields?.modelName ?? this.modelName
         this.modelKwargs = fields?.modelKwargs ?? {}
@@ -855,7 +858,7 @@ export class CustomChatOpenAI<
         let llm
         let outputParser
         if (method === "jsonMode") {
-            llm = this.bind({})
+            llm = ((this as any).bind)({})
             if (isZodSchema(schema)) {
                 outputParser = StructuredOutputParser.fromZodSchema(schema)
             } else {
@@ -880,7 +883,7 @@ export class CustomChatOpenAI<
                     parameters: schema
                 }
             }
-            llm = this.bind({})
+            llm = ((this as any).bind)({})
             outputParser = new JsonOutputKeyToolsParser({
                 returnSingle: true,
                 keyName: functionName

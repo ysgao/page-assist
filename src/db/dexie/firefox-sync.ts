@@ -1,3 +1,4 @@
+/*
 import { bulkAddPromptsFB } from "../index"
 import { bulkAddModelsFB } from "../models"
 import { bulkAddOAIFB } from "../openai"
@@ -13,3 +14,4 @@ export const firefoxSyncDataForPrivateMode = async () => {
   await bulkAddModelsFB(customModels)
   await bulkAddOAIFB(oaiConfigs)
 }
+*/

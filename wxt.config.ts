@@ -15,19 +15,19 @@ const chromeMV3Permissions = [
   "notifications"
 ]
 
-const firefoxMV2Permissions = [
-  "storage",
-  "activeTab",
-  "scripting",
-  "unlimitedStorage",
-  "contextMenus",
-  "webRequest",
-  "webRequestBlocking",
-  "notifications",
-  "http://*/*",
-  "https://*/*",
-  "file://*/*"
-]
+// const firefoxMV2Permissions = [
+//   "storage",
+//   "activeTab",
+//   "scripting",
+//   "unlimitedStorage",
+//   "contextMenus",
+//   "webRequest",
+//   "webRequestBlocking",
+//   "notifications",
+//   "http://*/* ",
+// "https://*/*",
+//   "file://*/*"
+// ]
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
@@ -48,8 +48,8 @@ export default defineConfig({
       }) as any
     ]
   }),
-  entrypointsDir:
-    process.env.TARGET === "firefox" ? "entries-firefox" : "entries",
+  entrypointsDir: "entries",
+  // process.env.TARGET === "firefox" ? "entries-firefox" : "entries",
   srcDir: "src",
   outDir: "build",
 
@@ -63,6 +63,7 @@ export default defineConfig({
     default_locale: "en",
     action: {},
     author: { email: "n4ze3m@example.com" },
+    /*
     browser_specific_settings:
       process.env.TARGET === "firefox"
         ? {
@@ -71,6 +72,7 @@ export default defineConfig({
           }
         }
         : undefined,
+    */
     host_permissions:
       process.env.TARGET !== "firefox"
         ? ["http://*/*", "https://*/*", "file://*/*"]
@@ -95,9 +97,11 @@ export default defineConfig({
           extension_pages:
             "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
         } : undefined,
-    permissions:
+    permissions: chromeMV3Permissions,
+    /*
       process.env.TARGET === "firefox"
         ? firefoxMV2Permissions
         : chromeMV3Permissions
+    */
   }
 }) as any

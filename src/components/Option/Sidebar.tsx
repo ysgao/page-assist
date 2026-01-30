@@ -32,7 +32,6 @@ import {
   Dropdown,
   Empty,
   Input,
-  Menu,
   message,
   Skeleton,
   Tooltip
@@ -711,47 +710,44 @@ export const Sidebar = ({
         )}
         <div className="flex items-center gap-2">
           <Dropdown
-            overlay={
-              <Menu>
-                <Menu.Item
-                  key="pin"
-                  icon={
-                    chat.is_pinned ? (
-                      <PinOffIcon className="w-4 h-4" />
-                    ) : (
-                      <PinIcon className="w-4 h-4" />
-                    )
-                  }
-                  onClick={() =>
+            menu={{
+              items: [
+                {
+                  key: "pin",
+                  icon: chat.is_pinned ? (
+                    <PinOffIcon className="w-4 h-4" />
+                  ) : (
+                    <PinIcon className="w-4 h-4" />
+                  ),
+                  label: chat.is_pinned ? t("common:unpin") : t("common:pin"),
+                  onClick: () =>
                     pinChatHistory({
                       id: chat.id,
                       is_pinned: !chat.is_pinned
-                    })
-                  }
-                  disabled={pinLoading}>
-                  {chat.is_pinned ? t("common:unpin") : t("common:pin")}
-                </Menu.Item>
-                <Menu.Item
-                  key="edit"
-                  icon={<PencilIcon className="w-4 h-4" />}
-                  onClick={(e) => {
-                    e.domEvent.stopPropagation()
+                    }),
+                  disabled: pinLoading
+                },
+                {
+                  key: "edit",
+                  icon: <PencilIcon className="w-4 h-4" />,
+                  label: t("common:edit"),
+                  onClick: (info) => {
+                    info.domEvent.stopPropagation()
                     handleEditStart(chat)
-                  }}>
-                  {t("common:edit")}
-                </Menu.Item>
-                <Menu.Item
-                  key="delete"
-                  icon={<Trash2 className="w-4 h-4" />}
-                  danger
-                  onClick={() => {
+                  }
+                },
+                {
+                  key: "delete",
+                  icon: <Trash2 className="w-4 h-4" />,
+                  label: t("common:delete"),
+                  danger: true,
+                  onClick: () => {
                     if (!confirm(t("deleteHistoryConfirmation"))) return
                     deleteHistory(chat.id)
-                  }}>
-                  {t("common:delete")}
-                </Menu.Item>
-              </Menu>
-            }
+                  }
+                }
+              ]
+            }}
             trigger={["click"]}
             placement="bottomRight">
             <button className="text-gray-500 dark:text-gray-400 opacity-80 hover:opacity-100">
@@ -945,23 +941,23 @@ export const Sidebar = ({
                         </button>
                       )}
                       <Dropdown
-                        overlay={
-                          <Menu>
-                            <Menu.Item
-                              key="rename"
-                              icon={<PencilIcon className="w-4 h-4" />}
-                              onClick={() => startProjectEdit(folder)}>
-                              {t("common:rename")}
-                            </Menu.Item>
-                            <Menu.Item
-                              key="delete"
-                              icon={<Trash2 className="w-4 h-4" />}
-                              danger
-                              onClick={() => handleDeleteProject(folder.id)}>
-                              {t("common:delete")}
-                            </Menu.Item>
-                          </Menu>
-                        }
+                        menu={{
+                          items: [
+                            {
+                              key: "rename",
+                              icon: <PencilIcon className="size-4" />,
+                              label: t("common:rename"),
+                              onClick: () => startProjectEdit(folder)
+                            },
+                            {
+                              key: "delete",
+                              icon: <Trash2 className="size-4" />,
+                              label: t("common:delete"),
+                              danger: true,
+                              onClick: () => handleDeleteProject(folder.id)
+                            }
+                          ]
+                        }}
                         trigger={["click"]}
                         placement="bottomRight">
                         <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">

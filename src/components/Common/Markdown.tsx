@@ -1,16 +1,16 @@
 import "katex/dist/katex.min.css"
 
-import remarkGfm from "remark-gfm"
-import remarkMath from "remark-math"
 import ReactMarkdown from "react-markdown"
 import rehypeKatex from "rehype-katex"
+import remarkGfm from "remark-gfm"
+import remarkMath from "remark-math"
 
+import { preprocessLaTeX } from "@/utils/latex"
+import { useStorage } from "@plasmohq/storage/hook"
 import "property-information"
 import React from "react"
 import { CodeBlock } from "./CodeBlock"
 import { TableBlock } from "./TableBlock"
-import { preprocessLaTeX } from "@/utils/latex"
-import { useStorage } from "@plasmohq/storage/hook"
 
 function Markdown({
   message,
@@ -27,15 +27,16 @@ function Markdown({
   return (
     <React.Fragment>
       <ReactMarkdown
-        className={className}
+        {...({ className } as any)}
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[rehypeKatex]}
         components={{
           pre({ children }) {
             return children
           },
-          code({ node, inline, className, children, ...props }) {
+          code({ node, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || "")
+            const inline = !match
             return !inline ? (
               <CodeBlock
                 language={match ? match[1] : ""}
@@ -58,7 +59,7 @@ function Markdown({
               </a>
             )
           },
-          table({ children,    }) {
+          table({ children, }) {
             return <TableBlock>{children}</TableBlock>
           },
           p({ children }) {

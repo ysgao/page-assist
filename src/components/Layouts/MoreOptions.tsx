@@ -13,6 +13,7 @@ import {
   Share2
 } from "lucide-react"
 import { useState } from "react"
+import { createRoot } from "react-dom/client"
 import { useTranslation } from "react-i18next"
 import { ImageExportWrapper } from "../Common/ImageExport"
 import { ShareModal } from "../Common/ShareModal"

@@ -1,7 +1,7 @@
 import { removeModelSuffix } from "@/db/dexie/models"
 import { useTTS } from "@/hooks/useTTS"
 import { parseReasoning } from "@/libs/reasoning"
-import { ChatDocuments } from "@/models/ChatTypes"
+import type { ChatDocuments } from "@/models/ChatTypes"
 import { copyToClipboard } from "@/utils/clipboard"
 import { tagColors } from "@/utils/color"
 import { humanizeMilliseconds } from "@/utils/humanize-milliseconds"
@@ -31,8 +31,8 @@ type Props = {
   message: string
   message_type?: string
   hideCopy?: boolean
-  botAvatar?: JSX.Element
-  userAvatar?: JSX.Element
+  botAvatar?: React.ReactNode
+  userAvatar?: React.ReactNode
   isBot: boolean
   name: string
   images?: string[]
@@ -329,11 +329,11 @@ export const PlaygroundMessage = (props: Props) => {
           {!props.isProcessing && !editMode ? (
             <div
               className={`space-x-2 gap-2 flex ${props.currentMessageIndex !== props.totalMessages - 1
-                  ? //  there is few style issue so i am commenting this out for v1.4.5 release
-                  // next release we will fix this
-                  "invisible group-hover:visible"
-                  : // ? "hidden group-hover:flex"
-                  ""
+                ? //  there is few style issue so i am commenting this out for v1.4.5 release
+                // next release we will fix this
+                "invisible group-hover:visible"
+                : // ? "hidden group-hover:flex"
+                ""
                 // : "flex"
                 }`}>
               {props.isTTSEnabled && (

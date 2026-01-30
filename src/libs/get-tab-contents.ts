@@ -74,7 +74,7 @@ export const getTabContents = async (documents: ChatDocuments) => {
                     extractedContent = formatTranscriptText(transcript)
                 }
             } else if (isWikipedia(doc.url)) {
-                extractedContent = parseWikipedia(content)
+                extractedContent = parseWikipedia(content.html)
             } else if (isAmazonURL(doc.url)) {
                 extractedContent = parseAmazonWebsite(content.html)
             } else if (isTwitterProfile(doc.url)) {

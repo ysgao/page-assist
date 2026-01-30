@@ -1,8 +1,8 @@
 import { getCustomOllamaHeaders } from "@/services/app"
 
 
-const fetcher = async (input: string | URL | globalThis.Request, init?: RequestInit) : Promise<Response> => {
-    const update = {...init} || {}
+const fetcher = async (input: string | URL | globalThis.Request, init?: RequestInit): Promise<Response> => {
+    const update: RequestInit = { ...init }
     const customHeaders = await getCustomOllamaHeaders()
     update.headers = {
         ...customHeaders,

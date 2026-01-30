@@ -29,14 +29,16 @@ export const urlRewriteRuntime = async function (
             removeRuleIds: [1],
             addRules: []
           })
-        } catch (e) {}
+        } catch (e) { }
       }
 
-      if (import.meta.env.BROWSER === "firefox") {
-        try {
-          browser.webRequest.onBeforeSendHeaders.removeListener(() => {})
-        } catch (e) {}
-      }
+      /*
+            if (import.meta.env.BROWSER === "firefox") {
+              try {
+                browser.webRequest.onBeforeSendHeaders.removeListener(() => {})
+              } catch (e) {}
+            }
+      */
 
       return
     }
@@ -77,25 +79,27 @@ export const urlRewriteRuntime = async function (
       })
     }
 
-    if (import.meta.env.BROWSER === "firefox") {
-      const url = new URL(domain)
-      const domains = [`*://${url.hostname}/*`]
-      browser.webRequest.onBeforeSendHeaders.addListener(
-        (details) => {
-          let origin = `${url.protocol}//${url.hostname}`
-          if (isEnableRewriteUrl && rewriteUrl && type === "ollama") {
-            origin = rewriteUrl
-          }
-          for (let i = 0; i < details.requestHeaders.length; i++) {
-            if (details.requestHeaders[i].name === "Origin") {
-              details.requestHeaders[i].value = origin
-            }
-          }
-          return { requestHeaders: details.requestHeaders }
-        },
-        { urls: domains },
-        ["blocking", "requestHeaders"]
-      )
-    }
+    /*
+        if (import.meta.env.BROWSER === "firefox") {
+          const url = new URL(domain)
+          const domains = [`*://${url.hostname}/*`]
+          browser.webRequest.onBeforeSendHeaders.addListener(
+            (details) => {
+              let origin = `${url.protocol}//${url.hostname}`
+              if (isEnableRewriteUrl && rewriteUrl && type === "ollama") {
+                origin = rewriteUrl
+              }
+              for (let i = 0; i < details.requestHeaders.length; i++) {
+                if (details.requestHeaders[i].name === "Origin") {
+                  details.requestHeaders[i].value = origin
+                }
+              }
+              return { requestHeaders: details.requestHeaders }
+            },
+            { urls: domains },
+            ["blocking", "requestHeaders"]
+          )
+        }
+    */
   }
 }

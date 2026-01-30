@@ -40,7 +40,7 @@ export class PageAssistKnowledge {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError)
         } else {
-          const data = Object.keys(result).map((key) => result[key])
+          const data = Object.keys(result).map((key) => result[key] as any)
           resolve(data)
         }
       })
@@ -53,7 +53,7 @@ export class PageAssistKnowledge {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError)
         } else {
-          resolve(result[id])
+          resolve(result[id] as any)
         }
       })
     })

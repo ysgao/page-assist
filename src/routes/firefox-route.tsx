@@ -1,3 +1,4 @@
+/*
 import { Suspense } from "react"
 import { useDarkMode } from "~/hooks/useDarkmode"
 import { OptionRoutingFirefox, SidepanelRoutingFirefox } from "./firefox"
@@ -26,3 +27,4 @@ export const SidepanelRouting = () => {
     </div>
   )
 }
+*/

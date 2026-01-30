@@ -1,3 +1,4 @@
+/*
 import { getOllamaURL, isOllamaRunning } from "../services/ollama"
 import { browser } from "wxt/browser"
 import { clearBadge, streamDownload, cancelDownload } from "@/utils/pull-ollama"
@@ -320,3 +321,4 @@ export default defineBackground({
   },
   persistent: true
 })
+*/

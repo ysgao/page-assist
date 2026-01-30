@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect, useMemo } from "react"
-import { Search, RotateCw, ChevronDown } from "lucide-react"
-import { LoadingIndicator } from "./LoadingIndicator"
 import { Empty } from "antd"
+import { ChevronDown, RotateCw, Search } from "lucide-react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
+import { LoadingIndicator } from "./LoadingIndicator"
 
 export interface SelectOption {
-  label: string | JSX.Element
+  label: string | React.ReactNode
   value: string
 }
 
@@ -73,7 +73,7 @@ export const PageAssistSelect: React.FC<SelectProps> = ({
     } catch (error) {
       console.error("Error scrolling to selected option:", error)
     }
-    
+
   }, [isOpen, value])
 
   useEffect(() => {
@@ -87,7 +87,7 @@ export const PageAssistSelect: React.FC<SelectProps> = ({
       }
 
       if (typeof option.label === "string") {
-        return option.label.toLowerCase().includes(searchTerm.toLowerCase())
+        return (option.label as string).toLowerCase().includes(searchTerm.toLowerCase())
       }
 
       if (React.isValidElement(option.label)) {
@@ -101,14 +101,18 @@ export const PageAssistSelect: React.FC<SelectProps> = ({
     setActiveIndex(-1)
   }, [searchTerm, options, filterOption])
 
-  const extractTextFromJSX = (element: React.ReactElement): string => {
-    if (typeof element.props.children === "string") {
-      return element.props.children
+  const extractTextFromJSX = (element: React.ReactNode): string => {
+    if (!React.isValidElement(element)) {
+      return typeof element === "string" || typeof element === "number" ? String(element) : ""
+    }
+    const props = element.props as any
+    if (typeof props.children === "string") {
+      return props.children
     }
 
-    if (Array.isArray(element.props.children)) {
-      return element.props.children
-        .map((child) => {
+    if (Array.isArray(props.children)) {
+      return props.children
+        .map((child: any) => {
           if (typeof child === "string") return child
           if (React.isValidElement(child)) return extractTextFromJSX(child)
           return ""
@@ -116,8 +120,8 @@ export const PageAssistSelect: React.FC<SelectProps> = ({
         .join(" ")
     }
 
-    if (React.isValidElement(element.props.children)) {
-      return extractTextFromJSX(element.props.children)
+    if (React.isValidElement(props.children)) {
+      return extractTextFromJSX(props.children)
     }
 
     return ""
@@ -238,7 +242,7 @@ export const PageAssistSelect: React.FC<SelectProps> = ({
         onKeyDown={handleKeyDown}
         className={`${defaultSelectClass} ${className}`}>
         <span className="!truncate flex items-center gap-2 select-none">
-          {isLoading && <LoadingIndicator  />}
+          {isLoading && <LoadingIndicator />}
           {isLoading ? (
             loadingText
           ) : selectedOption ? (
@@ -251,9 +255,8 @@ export const PageAssistSelect: React.FC<SelectProps> = ({
         </span>
         <ChevronDown
           aria-hidden="true"
-          className={`w-4 h-4 transition-transform duration-200 ${
-            isOpen ? "transform rotate-180" : ""
-          }`}
+          className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""
+            }`}
         />
       </div>
 

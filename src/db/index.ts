@@ -1,9 +1,9 @@
+import { ChatDocuments } from "@/models/ChatTypes"
 import {
   type ChatHistory as ChatHistoryType,
   type Message as MessageType
 } from "~/store/option"
 import { getAllModelNicknames } from "./nickname"
-import { ChatDocuments } from "@/models/ChatTypes"
 type HistoryInfo = {
   id: string
   title: string
@@ -149,7 +149,7 @@ export class PageAssitDatabase {
   async getSessionFilesInfo(sessionId: string): Promise<SessionFiles | null> {
     return new Promise((resolve) => {
       this.db.get(`session_files_${sessionId}`, (result) => {
-        resolve(result[`session_files_${sessionId}`] || null)
+        resolve((result[`session_files_${sessionId}`] as any) || null)
       })
     })
   }
@@ -216,7 +216,7 @@ export class PageAssitDatabase {
     return new Promise((resolve, reject) => {
       this.db.get(id, (result) => {
         resolve(
-          (result[id] || []).map((message: any) => {
+          ((result[id] as any) || []).map((message: any) => {
             return {
               ...message,
               modelName:
@@ -233,7 +233,7 @@ export class PageAssitDatabase {
   async getChatHistories(): Promise<ChatHistory> {
     return new Promise((resolve, reject) => {
       this.db.get("chatHistories", (result) => {
-        resolve(result.chatHistories || [])
+        resolve((result.chatHistories as any) || [])
       })
     })
   }
@@ -312,7 +312,7 @@ export class PageAssitDatabase {
   async getAllPrompts(): Promise<Prompts> {
     return new Promise((resolve, reject) => {
       this.db.get("prompts", (result) => {
-        resolve(result.prompts || [])
+        resolve((result.prompts as any) || [])
       })
     })
   }
@@ -368,7 +368,7 @@ export class PageAssitDatabase {
   async getAllWebshares(): Promise<Webshare[]> {
     return new Promise((resolve, reject) => {
       this.db.get("webshares", (result) => {
-        resolve(result.webshares || [])
+        resolve((result.webshares as any) || [])
       })
     })
   }
@@ -901,4 +901,5 @@ export const bulkAddPromptsFB = async (prompts: Prompt[]) => {
   await db.bulkAddPrompts(prompts)
 }
 
-export type { UploadedFile, SessionFiles }
+export type { SessionFiles, UploadedFile }
+

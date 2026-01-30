@@ -1,3 +1,4 @@
+/*
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { MemoryRouter } from "react-router-dom"
 import { useEffect } from "react"
@@ -55,3 +56,4 @@ function IndexSidepanel() {
 }
 
 export default IndexSidepanel
+*/
