@@ -16,6 +16,8 @@ import type { Document } from "@langchain/core/documents"
 import * as cheerio from "cheerio"
 import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory"
 
+import { fetchWithProxy } from "@/libs/fetch-proxy"
+
 const BING_SEARCH_URL = "https://www.bing.com/search?q="
 
 export const localBingSearch = async (query: string) => {
@@ -27,11 +29,14 @@ export const localBingSearch = async (query: string) => {
     const abortController = new AbortController()
     setTimeout(() => abortController.abort(), 10000)
 
-    const htmlString = await fetch(BING_SEARCH_URL + query, {
+    const htmlString = await fetchWithProxy(BING_SEARCH_URL + query, {
         signal: abortController.signal
     })
         .then((response) => response.text())
-        .catch()
+        .catch((e) => {
+            console.error(e)
+            return ""
+        })
 
     const $ = cheerio.load(htmlString)
     const $results = $("#b_content #b_results")

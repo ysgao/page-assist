@@ -15,19 +15,24 @@ import type { Document } from "@langchain/core/documents"
 import * as cheerio from "cheerio"
 import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory"
 
+import { fetchWithProxy } from "@/libs/fetch-proxy"
+
 export const localDuckDuckGoSearch = async (query: string) => {
 
   const abortController = new AbortController()
   setTimeout(() => abortController.abort(), 10000)
 
-  const htmlString = await fetch(
+  const htmlString = await fetchWithProxy(
     "https://html.duckduckgo.com/html/?q=" + query,
     {
       signal: abortController.signal
     }
   )
     .then((response) => response.text())
-    .catch()
+    .catch((e) => {
+      console.error(e)
+      return ""
+    })
 
   const $ = cheerio.load(htmlString)
 

@@ -1149,12 +1149,21 @@ export const useMessage = () => {
       try {
         const isWebQuery = await isQueryHaveWebsite(query)
         if (!isWebQuery) {
-          const response = await questionModel.invoke([questionMessage])
-          query = response?.content?.toString() || message
-          query = removeReasoning(query)
+          try {
+            const response = await questionModel.invoke([questionMessage])
+            query = response?.content?.toString() || message
+            query = removeReasoning(query)
+          } catch (invokeError: any) {
+            if (invokeError?.message?.includes('429')) {
+              console.warn("Model rate limited (429) during query optimization. Proceeding with original query.")
+            } else {
+              console.error("Error in questionModel.invoke:", invokeError)
+            }
+            // Keep query as message (default)
+          }
         }
       } catch (error) {
-        console.error("Error in questionModel.invoke:", error)
+        console.error("Error in searchChatMode preparation:", error)
       }
 
       const { prompt, source } = await getSystemPromptForWeb(query)

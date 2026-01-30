@@ -8,6 +8,7 @@ import {
   setTotalFilePerKB
 } from "./app"
 import fetcher from "@/libs/fetcher"
+import { fetchWithProxy } from "@/libs/fetch-proxy"
 import { ollamaFormatAllCustomModels } from "@/db/dexie/models"
 import { getAllModelNicknames } from "@/db/dexie/nickname"
 import { getAllModelStates } from "@/db/dexie/modelState"
@@ -90,7 +91,7 @@ export const defaultModel = async () => {
 export const isOllamaRunning = async () => {
   try {
     const baseUrl = await getOllamaURL()
-    const response = await fetcher(`${cleanUrl(baseUrl)}`)
+    const response = await fetchWithProxy(`${cleanUrl(baseUrl)}`)
     if (!response.ok) {
       throw new Error(response.statusText)
     }
@@ -118,14 +119,14 @@ export const getAllModels = async ({
     }
 
     const baseUrl = await getOllamaURL()
-    const response = await fetcher(`${cleanUrl(baseUrl)}/api/tags`)
+    const response = await fetchWithProxy(`${cleanUrl(baseUrl)}/api/tags`)
     if (!response.ok) {
       if (returnEmpty) {
         return []
       }
       throw new Error(response.statusText)
     }
-    const json = await response.json()
+    const json = await response.text().then(text => JSON.parse(text))
 
     const allModels = json.models.map((model: any) => {
       const isModelEnabled = modelStates[model.name] ?? true
@@ -197,7 +198,7 @@ export const getEmbeddingModels = async ({
 
 export const deleteModel = async (model: string) => {
   const baseUrl = await getOllamaURL()
-  const response = await fetcher(`${cleanUrl(baseUrl)}/api/delete`, {
+  const response = await fetchWithProxy(`${cleanUrl(baseUrl)}/api/delete`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json"

@@ -119,6 +119,7 @@ export const SearchModeSettings = () => {
             </div>
           </>
         )}
+
         {form.values.searchProvider === "brave-api" && (
           <>
             <div className="flex sm:flex-row flex-col space-y-4 sm:space-y-0 sm:justify-between">

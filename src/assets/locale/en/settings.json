@@ -159,6 +159,10 @@
       "googleDomain": {
         "label": "Google Domain"
       },
+      "geminiApi": {
+        "label": "Gemini API Key",
+        "placeholder": "Enter your Gemini API key"
+      },
       "searchOnByDefault": {
         "label": "Internet Search ON by default"
       },

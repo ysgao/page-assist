@@ -51,9 +51,12 @@ export const SUPPORTED_SEARCH_PROVIDERS = [
         label: "Firecrawl",
         value: "firecrawl"
     },
-    {
-        label: "Ollama Web search",
-        value: "ollama-search"
+      {
+        label: "Google (via Gemini API)",
+        value: "google-gemini"
+      },
+      {
+        label: "Ollama Web search",        value: "ollama-search"
     },
     {
         label: "Kagi Search API*",

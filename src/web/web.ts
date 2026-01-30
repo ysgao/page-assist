@@ -17,26 +17,35 @@ import { firecrawlAPISearch } from "./search-engines/firecrawl"
 import { ollamaAPISearch } from "./search-engines/ollama"
 import { kagiAPISearch } from "./search-engines/kagi-api"
 import { perplexityAPISearch } from "./search-engines/perplexity-api"
-
-interface ProviderResults {
-  url: any
-  content: string | null
-}
-
-interface SearchProviderResult {
-  url: string
-  content: string | null
-  answer: string | null
-  results: ProviderResults[] | null
-}
+import { geminiSearch } from "./search-engines/gemini"
 
 const getHostName = (url: string) => {
   try {
-    return new URL(url).hostname
-  } catch (e) {
-    console.error("Failed to get hostname:", e)
-    return ""
+    const { hostname } = new URL(url)
+    return hostname
+  } catch (error) {
+    return url
   }
+}
+
+const parseResult = async (result: any) => {
+  if (result.status === "fulfilled") {
+    return result.value
+  }
+  return []
+}
+
+interface SearchProviderResult {
+  results: {
+    url: string
+    content: string
+  }[]
+  answer?: string
+}
+
+type ProviderResults = {
+  url: string
+  content: string
 }
 
 const searchWeb = (provider: string, query: string) => {
@@ -71,8 +80,12 @@ const searchWeb = (provider: string, query: string) => {
       return kagiAPISearch(query)
     case "perplexity-api":
       return perplexityAPISearch(query)
-    default:
+    case "google-gemini":
+      return geminiSearch(query)
+    case "google":
       return webGoogleSearch(query)
+    default:
+      return webDuckDuckGoSearch(query)
   }
 }
 

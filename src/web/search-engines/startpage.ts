@@ -14,19 +14,24 @@ import { getPageAssistTextSplitter } from "@/utils/text-splitter"
 import type { Document } from "@langchain/core/documents"
 import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory"
 
+import { fetchWithProxy } from "@/libs/fetch-proxy"
+
 export const localStartPageSearch = async (query: string) => {
     const TOTAL_SEARCH_RESULTS = await totalSearchResults()
 
     const abortController = new AbortController()
     setTimeout(() => abortController.abort(), 10000)
 
-    const htmlString = await fetch(
+    const htmlString = await fetchWithProxy(
         "https://www.startpage.com/sp/search?query=" + encodeURIComponent(query) + "&cat=web&pl=Opensearch",
         {
             signal: abortController.signal
         }
     ).then((response) => response.text())
-        .catch()
+        .catch((e) => {
+            console.error(e)
+            return ""
+        })
     const parser = new DOMParser()
 
     const doc = parser.parseFromString(htmlString, "text/html")

@@ -40,11 +40,15 @@ export default defineBackground({
 
         // Create menu only if enabled
         if (enabledState[menu.key]) {
-          browser.contextMenus.create({
-            id: menu.id,
-            title: menu.title,
-            contexts: ["selection"]
-          })
+          try {
+            await browser.contextMenus.create({
+              id: menu.id,
+              title: menu.title,
+              contexts: ["selection"]
+            })
+          } catch (e) {
+            // Ignore duplicate id errors
+          }
         }
       }
     }
@@ -67,11 +71,15 @@ export default defineBackground({
       for (const prompt of enabledPrompts) {
         const menuId = `custom_copilot_${prompt.id}`
         customCopilotMenuIds.push(menuId)
-        browser.contextMenus.create({
-          id: menuId,
-          title: prompt.title,
-          contexts: ["selection"]
-        })
+        try {
+          await browser.contextMenus.create({
+            id: menuId,
+            title: prompt.title,
+            contexts: ["selection"]
+          })
+        } catch (e) {
+          // Ignore
+        }
       }
     }
 
@@ -90,12 +98,12 @@ export default defineBackground({
             const newValue = value?.newValue || "sidePanel"
             if (oldValue !== newValue) {
               contextMenuClick = newValue
-              browser.contextMenus.remove(contextMenuId[oldValue])
+              browser.contextMenus.remove(contextMenuId[oldValue]).catch(() => {})
               browser.contextMenus.create({
                 id: contextMenuId[newValue],
                 title: contextMenuTitle[newValue],
                 contexts: ["page", "selection"]
-              })
+              }).catch(() => {})
             }
           },
           customCopilotPrompts: async () => {
@@ -123,11 +131,21 @@ export default defineBackground({
         contextMenuClick = data.contextMenuClick
         actionIconClick = data.actionIconClick
 
-        browser.contextMenus.create({
-          id: contextMenuId[contextMenuClick],
-          title: contextMenuTitle[contextMenuClick],
-          contexts: ["page", "selection"]
-        })
+        // Clean up existing menus to prevent duplicates
+        try {
+          await browser.contextMenus.remove(contextMenuId.webui)
+        } catch (e) {}
+        try {
+          await browser.contextMenus.remove(contextMenuId.sidePanel)
+        } catch (e) {}
+
+        try {
+          await browser.contextMenus.create({
+            id: contextMenuId[contextMenuClick],
+            title: contextMenuTitle[contextMenuClick],
+            contexts: ["page", "selection"]
+          })
+        } catch (e) {}
 
         // Create built-in copilot menus
         await createBuiltinCopilotMenus()
@@ -188,6 +206,43 @@ export default defineBackground({
           },
           isCopilotRunning ? 0 : 5000
         )
+      } else if (message.type === "fetch_url") {
+        try {
+          console.log("Background fetching:", message.url);
+          const options = message.options || {};
+          if (!options.headers) {
+            options.headers = {};
+          }
+          // Ensure we have a headers object to work with
+          if (options.headers instanceof Headers) {
+             // Should have been converted by proxy, but just in case
+             const headersObj: Record<string, string> = {};
+             options.headers.forEach((value: string, key: string) => {
+               headersObj[key] = value;
+             });
+             options.headers = headersObj;
+          }
+          
+          // Add a default User-Agent if not present
+          // Note: Host permissions are required for this to work on some domains
+          if (!options.headers["User-Agent"] && !options.headers["user-agent"]) {
+            options.headers["User-Agent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36";
+          }
+
+          const response = await fetch(message.url, options)
+          if (!response.ok) {
+            console.error("Background fetch failed status:", response.status);
+            return {
+              success: false,
+              error: `HTTP error! status: ${response.status}`
+            }
+          }
+          const text = await response.text()
+          return { success: true, text }
+        } catch (e: any) {
+          console.error("Background fetch exception:", e);
+          return { success: false, error: e.message || "Unknown error" }
+        }
       }
     })
 

@@ -5,3 +5,12 @@ export const cleanUrl = (url: string) => {
   }
   return url
 }
+
+export const getHostName = (url: string) => {
+  try {
+    const { hostname } = new URL(url)
+    return hostname
+  } catch (error) {
+    return url
+  }
+}

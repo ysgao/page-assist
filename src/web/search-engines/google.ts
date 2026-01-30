@@ -14,6 +14,7 @@ import {
   getOllamaURL,
   getSelectedModel
 } from "~/services/ollama"
+import { fetchWithProxy } from "@/libs/fetch-proxy"
 
 
 export const localGoogleSearch = async (query: string, start: number = 0) => {
@@ -21,26 +22,18 @@ export const localGoogleSearch = async (query: string, start: number = 0) => {
   const abortController = new AbortController()
   setTimeout(() => abortController.abort(), 10000)
 
-  const htmlString = await fetch(
+  const htmlString = await fetchWithProxy(
     `https://www.${baseGoogleDomain}/search?hl=en&q=${encodeURIComponent(query)}&start=${start}`,
     {
       signal: abortController.signal,
-      headers: {
-        "User-Agent": navigator.userAgent,
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Accept-Encoding": "gzip, deflate, br",
-        "DNT": "1",
-        "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1",
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "none",
-        "Sec-Fetch-User": "?1"
-      }
+      referrerPolicy: "no-referrer",
+      credentials: "omit"
     }
   ).then((response) => response.text())
-    .catch()
+    .catch((e) => {
+      console.error(e)
+      return ""
+    })
   const parser = new DOMParser()
 
   const doc = parser.parseFromString(htmlString, "text/html")
@@ -147,3 +140,4 @@ export const webGoogleSearch = async (query: string) => {
 
   return searchResult
 }
+
