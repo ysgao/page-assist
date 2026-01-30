@@ -15,20 +15,6 @@ const chromeMV3Permissions = [
   "notifications"
 ]
 
-// const firefoxMV2Permissions = [
-//   "storage",
-//   "activeTab",
-//   "scripting",
-//   "unlimitedStorage",
-//   "contextMenus",
-//   "webRequest",
-//   "webRequestBlocking",
-//   "notifications",
-//   "http://*/* ",
-// "https://*/*",
-//   "file://*/*"
-// ]
-
 // See https://wxt.dev/api/config.html
 export default defineConfig({
   vite: () => ({
@@ -45,11 +31,54 @@ export default defineConfig({
       topLevelAwait({
         promiseExportName: "__tla",
         promiseImportName: (i) => `__tla_${i}`
-      }) as any
+      }) as any,
+      {
+        name: "wxt-conditional-manual-chunks",
+        config(config: any) {
+          if (config.build?.lib) {
+            // Background and content scripts use lib mode with iife format, 
+            // which doesn't support manualChunks/code-splitting.
+            return;
+          }
+
+          return {
+            build: {
+              rollupOptions: {
+                output: {
+                  manualChunks(id: string) {
+                    if (id.includes("node_modules")) {
+                      if (
+                        id.includes("antd") ||
+                        id.includes("@ant-design") ||
+                        id.includes("rc-")
+                      ) {
+                        return "vendor-antd"
+                      }
+                      if (id.includes("lucide-react")) {
+                        return "vendor-lucide"
+                      }
+                      if (
+                        id.includes("react-markdown") ||
+                        id.includes("remark") ||
+                        id.includes("rehype")
+                      ) {
+                        return "vendor-markdown"
+                      }
+                      if (id.includes("dexie")) {
+                        return "vendor-dexie"
+                      }
+                      return "vendor"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     ]
   }),
   entrypointsDir: "entries",
-  // process.env.TARGET === "firefox" ? "entries-firefox" : "entries",
   srcDir: "src",
   outDir: "build",
 
@@ -63,16 +92,6 @@ export default defineConfig({
     default_locale: "en",
     action: {},
     author: { email: "n4ze3m@example.com" },
-    /*
-    browser_specific_settings:
-      process.env.TARGET === "firefox"
-        ? {
-          gecko: {
-            id: "page-assist@nazeem"
-          }
-        }
-        : undefined,
-    */
     host_permissions:
       process.env.TARGET !== "firefox"
         ? ["http://*/*", "https://*/*", "file://*/*"]
@@ -92,16 +111,12 @@ export default defineConfig({
       }
     },
     content_security_policy:
-      process.env.TARGET !== "firefox" ?
-        {
+      process.env.TARGET !== "firefox"
+        ? {
           extension_pages:
             "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
-        } : undefined,
-    permissions: chromeMV3Permissions,
-    /*
-      process.env.TARGET === "firefox"
-        ? firefoxMV2Permissions
-        : chromeMV3Permissions
-    */
+        }
+        : undefined,
+    permissions: chromeMV3Permissions
   }
 }) as any

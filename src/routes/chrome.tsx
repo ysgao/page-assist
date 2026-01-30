@@ -1,19 +1,21 @@
+import { lazy } from "react"
 import { Route, Routes } from "react-router-dom"
-import OptionIndex from "./option-index"
-import OptionSettings from "./option-settings"
-import OptionModal from "./option-settings-model"
-import OptionPrompt from "./option-settings-prompt"
-import OptionOllamaSettings from "./options-settings-ollama"
-import OptionShare from "./option-settings-share"
-import OptionKnowledgeBase from "./option-settings-knowledge"
-import OptionAbout from "./option-settings-about"
-import SidepanelChat from "./sidepanel-chat"
-import SidepanelSettings from "./sidepanel-settings"
-import OptionRagSettings from "./option-rag"
-import OptionChrome from "./option-settings-chrome"
-import OptionOpenAI from "./option-settings-openai"
-import SidepanelSettingsOpenAI from "./sidepanel-settings-openai"
-import SidepanelSettingsModel from "./sidepanel-settings-model"
+
+const OptionIndex = lazy(() => import("./option-index"))
+const OptionSettings = lazy(() => import("./option-settings"))
+const OptionModal = lazy(() => import("./option-settings-model"))
+const OptionPrompt = lazy(() => import("./option-settings-prompt"))
+const OptionOllamaSettings = lazy(() => import("./options-settings-ollama"))
+const OptionShare = lazy(() => import("./option-settings-share"))
+const OptionKnowledgeBase = lazy(() => import("./option-settings-knowledge"))
+const OptionAbout = lazy(() => import("./option-settings-about"))
+const SidepanelChat = lazy(() => import("./sidepanel-chat"))
+const SidepanelSettings = lazy(() => import("./sidepanel-settings"))
+const OptionRagSettings = lazy(() => import("./option-rag"))
+const OptionChrome = lazy(() => import("./option-settings-chrome"))
+const OptionOpenAI = lazy(() => import("./option-settings-openai"))
+const SidepanelSettingsOpenAI = lazy(() => import("./sidepanel-settings-openai"))
+const SidepanelSettingsModel = lazy(() => import("./sidepanel-settings-model"))
 
 export const OptionRoutingChrome = () => {
   return (
