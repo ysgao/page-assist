@@ -33,6 +33,7 @@ import {
     OpenAICoreRequestOptions
 } from "@langchain/openai"
 import { type ClientOptions, OpenAI as OpenAIClient, } from "openai"
+import { fetchWithProxy } from "../libs/fetch-proxy"
 import { CustomAIMessageChunk } from "./CustomAIMessageChunk.js"
 import { LegacyOpenAIInput } from "./types.js"
 import { wrapOpenAIClientError } from "./utils/openai.js"
@@ -446,6 +447,7 @@ export class CustomChatOpenAI<
             defaultQuery:
                 configuration?.baseOptions?.params ??
                 fields?.configuration?.baseOptions?.params,
+            fetch: fetchWithProxy as any,
             ...configuration,
             ...fields?.configuration
         }

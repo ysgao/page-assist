@@ -1,3 +1,4 @@
+import { fetchWithProxy } from "@/libs/fetch-proxy"
 import {
     CallbackManagerForLLMRun,
     Callbacks
@@ -221,7 +222,7 @@ export class ChatAnthropic extends SimpleChatModel<AnthropicCallOptions> {
         body.stream = true
 
         try {
-            const response = await fetch("https://api.anthropic.com/v1/messages", {
+            const response = await fetchWithProxy("https://api.anthropic.com/v1/messages", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -229,7 +230,8 @@ export class ChatAnthropic extends SimpleChatModel<AnthropicCallOptions> {
                     "anthropic-version": "2023-06-01",
                     "x-api-key": this.apiKey,
                 },
-                body: JSON.stringify(body)
+                body: JSON.stringify(body),
+                stream: true
             })
 
             if (!response.ok) {

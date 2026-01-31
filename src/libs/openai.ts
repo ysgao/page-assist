@@ -1,5 +1,5 @@
-
 import { getCustomHeaders } from "@/utils/clean-headers"
+import { fetchWithProxy } from "./fetch-proxy"
 
 type Model = {
   id: string
@@ -34,7 +34,7 @@ export const getAllAnthropicModels = async ({
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 10000)
 
-    const res = await fetch(url, {
+    const res = await fetchWithProxy(url, {
       headers,
       signal: controller.signal
     })
@@ -46,7 +46,7 @@ export const getAllAnthropicModels = async ({
     }
 
     const data = await res.json()
-    return data.data.map(e=> {
+    return data.data.map(e => {
       return {
         ...e,
         name: e?.display_name
@@ -87,7 +87,7 @@ export const getAllOpenAIModels = async ({
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 10000)
 
-    const res = await fetch(url, {
+    const res = await fetchWithProxy(url, {
       headers,
       signal: controller.signal
     })
@@ -97,7 +97,7 @@ export const getAllOpenAIModels = async ({
     // if Google API fails to return models, try another approach
     if (res.url == 'https://generativelanguage.googleapis.com/v1beta/openai/models') {
       const urlGoogle = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`
-      const resGoogle = await fetch(urlGoogle, {
+      const resGoogle = await fetchWithProxy(urlGoogle, {
         signal: controller.signal
       })
 

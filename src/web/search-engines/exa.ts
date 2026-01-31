@@ -1,19 +1,20 @@
-import { cleanUrl } from "~/libs/clean-url"
-import {
-  getIsSimpleInternetSearch,
-  totalSearchResults,
-  getExaAPIKey
-} from "@/services/search"
+import { fetchWithProxy } from "@/libs/fetch-proxy"
 import { pageAssistEmbeddingModel } from "@/models/embedding"
-import type { Document } from "@langchain/core/documents"
+import {
+  getExaAPIKey,
+  getIsSimpleInternetSearch,
+  totalSearchResults
+} from "@/services/search"
+import { getPageAssistTextSplitter } from "@/utils/text-splitter"
 import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory"
+import type { Document } from "@langchain/core/documents"
+import { cleanUrl } from "~/libs/clean-url"
 import { PageAssistHtmlLoader } from "~/loader/html"
 import {
   defaultEmbeddingModelForRag,
   getOllamaURL,
   getSelectedModel
 } from "~/services/ollama"
-import { getPageAssistTextSplitter } from "@/utils/text-splitter"
 
 interface ExaAPIResult {
   title: string
@@ -22,7 +23,7 @@ interface ExaAPIResult {
 }
 
 interface ExaAPIResponse {
-    results: ExaAPIResult[]
+  results: ExaAPIResult[]
 }
 
 export const exaAPISearch = async (query: string) => {
@@ -99,7 +100,7 @@ const apiExaSearch = async (exaApiKey: string, query: string) => {
   setTimeout(() => abortController.abort(), 20000)
 
   try {
-    const response = await fetch(searchURL, {
+    const response = await fetchWithProxy(searchURL, {
       signal: abortController.signal,
       method: "POST",
       body: JSON.stringify({

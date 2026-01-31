@@ -212,35 +212,34 @@ export default defineBackground({
         try {
           console.log("Background fetching:", message.url);
           const options = message.options || {};
-          if (!options.headers) {
-            options.headers = {};
-          }
+
           // Ensure we have a headers object to work with
-          if (options.headers instanceof Headers) {
-            // Should have been converted by proxy, but just in case
-            const headersObj: Record<string, string> = {};
-            options.headers.forEach((value: string, key: string) => {
-              headersObj[key] = value;
-            });
-            options.headers = headersObj;
-          }
+          const headers = options.headers || {};
 
           // Add a default User-Agent if not present
-          // Note: Host permissions are required for this to work on some domains
-          if (!options.headers["User-Agent"] && !options.headers["user-agent"]) {
-            options.headers["User-Agent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36";
+          if (!headers["User-Agent"] && !headers["user-agent"]) {
+            headers["User-Agent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36";
           }
 
+          options.headers = headers;
+
           const response = await fetch(message.url, options)
-          if (!response.ok) {
-            console.error("Background fetch failed status:", response.status);
-            return {
-              success: false,
-              error: `HTTP error! status: ${response.status}`
-            }
-          }
           const text = await response.text()
-          return { success: true, text }
+
+          // Convert headers to a plain object
+          const responseHeaders: Record<string, string> = {};
+          response.headers.forEach((value, key) => {
+            responseHeaders[key] = value;
+          });
+
+          return {
+            success: true,
+            text,
+            status: response.status,
+            statusText: response.statusText,
+            headers: responseHeaders,
+            url: response.url
+          }
         } catch (e: any) {
           console.error("Background fetch exception:", e);
           return { success: false, error: e.message || "Unknown error" }
@@ -254,6 +253,56 @@ export default defineBackground({
         port.onDisconnect.addListener(() => {
           isCopilotRunning = false
         })
+      } else if (port.name === "fetch_stream") {
+        let abortController = new AbortController();
+
+        port.onMessage.addListener(async (msg) => {
+          if (msg.type === "start_fetch") {
+            try {
+              const { url, options } = msg;
+              const response = await fetch(url, {
+                ...options,
+                signal: abortController.signal
+              });
+
+              // Send initial metadata
+              const responseHeaders: Record<string, string> = {};
+              response.headers.forEach((value, key) => {
+                responseHeaders[key] = value;
+              });
+
+              port.postMessage({
+                type: "metadata",
+                status: response.status,
+                statusText: response.statusText,
+                headers: responseHeaders,
+                url: response.url
+              });
+
+              if (response.body) {
+                const reader = response.body.getReader();
+                while (true) {
+                  const { done, value } = await reader.read();
+                  if (done) break;
+                  // Send chunk as Array or Base64 (Array is easier for JSON)
+                  port.postMessage({
+                    type: "chunk",
+                    value: Array.from(value)
+                  });
+                }
+              }
+              port.postMessage({ type: "done" });
+            } catch (e: any) {
+              port.postMessage({ type: "error", error: e.message || "Unknown error" });
+            } finally {
+              port.disconnect();
+            }
+          }
+        });
+
+        port.onDisconnect.addListener(() => {
+          abortController.abort();
+        });
       }
     })
 

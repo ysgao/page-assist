@@ -1,14 +1,15 @@
 import { defaultExtractContent } from "@/parser/default"
-import { getPdf } from "./pdf"
+import { isGoogleDocs, parseGoogleDocs } from "@/parser/google-docs"
 import {
   isTweet,
   isTwitterTimeline,
   parseTweet,
   parseTwitterTimeline
 } from "@/parser/twitter"
-import { isGoogleDocs, parseGoogleDocs } from "@/parser/google-docs"
 import { cleanUnwantedUnicode } from "@/utils/clean"
 import { isYoutubeLink } from "@/utils/is-youtube"
+import { fetchWithProxy } from "./fetch-proxy"
+import { getPdf } from "./pdf"
 
 const _getHtml = () => {
   const url = window.location.href
@@ -26,6 +27,10 @@ const _getHtml = () => {
 // this is a function that fetches youtube transcript from the current tab
 const _fetchTranscriptYT = async () => {
   const url = window.location.href
+  // Fallback to native fetch in content script if needed, 
+  // but content scripts can often fetch from their own domain.
+  // However, for YouTube, we're on youtube.com, so native fetch is fine.
+  // If we were calling this from sidepanel, we'd definitely need proxy.
   const response = await fetch(url)
   const content = await response.text()
   console.log("fetching transcript from youtube html", content.length)
@@ -367,7 +372,7 @@ export const getDataFromCurrentTab = async () => {
   const { content, type, url } = await result
 
   if (type === "pdf") {
-    const res = await fetch(url)
+    const res = await fetchWithProxy(url)
     const data = await res.arrayBuffer()
     let pdfHtml: {
       content: string
@@ -438,7 +443,7 @@ export const getDataFromCurrentTab = async () => {
 export const getContentFromCurrentTab = async (isUsingVS: boolean) => {
   const data = await getDataFromCurrentTab()
 
- 
+
   if (isYoutubeLink(data.url)) {
     console.log("Youtube link detected")
     const transcript = await fetchTranscriptYT()
