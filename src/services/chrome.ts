@@ -1,7 +1,4 @@
-import { Storage } from "@plasmohq/storage"
-
-const storage = new Storage()
-
+import { getStorage, setStorage } from "@/services/storage"
 const DEFAULT_CHROME_AI_MODEL = {
   name: "Gemini Nano",
   model: "chrome::gemini-nano::page-assist",
@@ -22,12 +19,12 @@ const DEFAULT_CHROME_AI_MODEL = {
 }
 
 export const getChromeAIStatus = async (): Promise<boolean> => {
-  const aiStatus = await storage.get<boolean | undefined>("chromeAIStatus")
+  const aiStatus = await getStorage<boolean | undefined>("chromeAIStatus")
   return aiStatus ?? false
 }
 
 export const setChromeAIStatus = async (status: boolean): Promise<void> => {
-  await storage.set("chromeAIStatus", status)
+  await setStorage("chromeAIStatus", status)
 }
 
 export const getChromeAIModel = async () => {

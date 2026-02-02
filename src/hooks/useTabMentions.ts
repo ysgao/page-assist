@@ -1,5 +1,5 @@
+import { useStorage } from "@/hooks/use-storage"
 import React from "react"
-import { useStorage } from "@plasmohq/storage/hook"
 
 export interface TabInfo {
   id: number
@@ -28,7 +28,7 @@ export const useTabMentions = (textareaRef: React.RefObject<HTMLTextAreaElement>
       const tabInfos: TabInfo[] = tabs
         .filter(tab => tab.id && tab.title && tab.url)
         .filter(tab => !tab.active)
-        .filter(tab => tab?.status === 'complete') 
+        .filter(tab => tab?.status === 'complete')
         .filter(tab => {
           const url = tab.url!.toLowerCase()
           return !url.startsWith('chrome://') &&
@@ -164,6 +164,6 @@ export const useTabMentions = (textareaRef: React.RefObject<HTMLTextAreaElement>
     removeDocument,
     clearSelectedDocuments,
     reloadTabs: fetchTabs,
-    handleMentionsOpen  
+    handleMentionsOpen
   }
 }

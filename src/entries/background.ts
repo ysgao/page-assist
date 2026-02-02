@@ -1,101 +1,95 @@
 import { getInitialConfig } from "@/services/action"
 import { getCopilotPromptsEnabledState, getCustomCopilotPrompts } from "@/services/application"
+import { getStorage } from "@/services/storage"
 import { cancelDownload, clearBadge, streamDownload } from "@/utils/pull-ollama"
-import { Storage } from "@plasmohq/storage"
 import { browser } from "wxt/browser"
 import { getOllamaURL, isOllamaRunning } from "../services/ollama"
 
-export default defineBackground({
-  main() {
-    const storage = new Storage({
-      area: "local"
-    })
-    let isCopilotRunning: boolean = false
-    let actionIconClick: string = "webui"
-    let contextMenuClick: string = "sidePanel"
-    const contextMenuId = {
-      webui: "open-web-ui-pa",
-      sidePanel: "open-side-panel-pa"
-    }
+export default defineBackground(() => {
+  let isCopilotRunning: boolean = false
+  let actionIconClick: string = "webui"
+  let contextMenuClick: string = "sidePanel"
+  const contextMenuId = {
+    webui: "open-web-ui-pa",
+    sidePanel: "open-side-panel-pa"
+  }
 
-    let customCopilotMenuIds: string[] = []
-    const builtinCopilotMenus = [
-      { id: "summarize-pa", key: "summary", title: "Summarize" },
-      { id: "explain-pa", key: "explain", title: "Explain" },
-      { id: "rephrase-pa", key: "rephrase", title: "Rephrase" },
-      { id: "translate-pg", key: "translate", title: "Translate" },
-      { id: "custom-pg", key: "custom", title: "Custom" }
-    ]
+  let customCopilotMenuIds: string[] = []
+  const builtinCopilotMenus = [
+    { id: "summarize-pa", key: "summary", title: "Summarize" },
+    { id: "explain-pa", key: "explain", title: "Explain" },
+    { id: "rephrase-pa", key: "rephrase", title: "Rephrase" },
+    { id: "translate-pg", key: "translate", title: "Translate" },
+    { id: "custom-pg", key: "custom", title: "Custom" }
+  ]
 
-    const createBuiltinCopilotMenus = async () => {
-      const enabledState = await getCopilotPromptsEnabledState()
+  const createBuiltinCopilotMenus = async () => {
+    const enabledState = await getCopilotPromptsEnabledState()
 
-      for (const menu of builtinCopilotMenus) {
-        // Remove existing menu
-        try {
-          await browser.contextMenus.remove(menu.id)
-        } catch (e) {
-          // Menu might not exist, ignore
-        }
-
-        // Create menu only if enabled
-        if (enabledState[menu.key]) {
-          try {
-            await browser.contextMenus.create({
-              id: menu.id,
-              title: menu.title,
-              contexts: ["selection"]
-            })
-          } catch (e) {
-            // Ignore duplicate id errors
-          }
-        }
+    for (const menu of builtinCopilotMenus) {
+      // Remove existing menu
+      try {
+        await browser.contextMenus.remove(menu.id)
+      } catch (e) {
+        // Menu might not exist, ignore
       }
-    }
 
-    const createCustomCopilotMenus = async () => {
-      // Remove existing custom copilot menus
-      for (const menuId of customCopilotMenuIds) {
-        try {
-          await browser.contextMenus.remove(menuId)
-        } catch (e) {
-          // Menu might not exist, ignore
-        }
-      }
-      customCopilotMenuIds = []
-
-      // Create new custom copilot menus
-      const customPrompts = await getCustomCopilotPrompts()
-      const enabledPrompts = customPrompts.filter(p => p.enabled)
-
-      for (const prompt of enabledPrompts) {
-        const menuId = `custom_copilot_${prompt.id}`
-        customCopilotMenuIds.push(menuId)
+      // Create menu only if enabled
+      if (enabledState[menu.key]) {
         try {
           await browser.contextMenus.create({
-            id: menuId,
-            title: prompt.title,
+            id: menu.id,
+            title: menu.title,
             contexts: ["selection"]
           })
         } catch (e) {
-          // Ignore
+          // Ignore duplicate id errors
         }
       }
     }
+  }
 
-    const initialize = async () => {
+  const createCustomCopilotMenus = async () => {
+    // Remove existing custom copilot menus
+    for (const menuId of customCopilotMenuIds) {
       try {
-        storage.watch({
-          actionIconClick: (value) => {
-            const oldValue = (value?.oldValue as string) || "webui"
-            const newValue = (value?.newValue as string) || "webui"
-            if (oldValue !== newValue) {
-              actionIconClick = newValue
-            }
-          },
-          contextMenuClick: (value) => {
-            const oldValue = (value?.oldValue as string) || "sidePanel"
-            const newValue = (value?.newValue as string) || "sidePanel"
+        await browser.contextMenus.remove(menuId)
+      } catch (e) {
+        // Menu might not exist, ignore
+      }
+    }
+    customCopilotMenuIds = []
+
+    // Create new custom copilot menus
+    const customPrompts = await getCustomCopilotPrompts()
+    const enabledPrompts = customPrompts.filter(p => p.enabled)
+
+    for (const prompt of enabledPrompts) {
+      const menuId = `custom_copilot_${prompt.id} `
+      customCopilotMenuIds.push(menuId)
+      try {
+        await browser.contextMenus.create({
+          id: menuId,
+          title: prompt.title,
+          contexts: ["selection"]
+        })
+      } catch (e) {
+        // Ignore
+      }
+    }
+  }
+
+  const initialize = async () => {
+    try {
+      browser.storage.onChanged.addListener(async (changes, area) => {
+        if (area === "local") {
+          if (changes["actionIconClick"]) {
+            const newValue = (changes["actionIconClick"].newValue as string) || "webui"
+            actionIconClick = newValue
+          }
+          if (changes["contextMenuClick"]) {
+            const oldValue = (changes["contextMenuClick"].oldValue as string) || "sidePanel"
+            const newValue = (changes["contextMenuClick"].newValue as string) || "sidePanel"
             if (oldValue !== newValue) {
               contextMenuClick = newValue
               try { browser.contextMenus.remove(contextMenuId[oldValue as keyof typeof contextMenuId]) } catch (e) { }
@@ -107,13 +101,12 @@ export default defineBackground({
                 })
               } catch (e) { }
             }
-          },
-          customCopilotPrompts: async () => {
-            // Recreate custom copilot menus when prompts change
+          }
+          if (changes["customCopilotPrompts"]) {
             await createCustomCopilotMenus()
-          },
-          youtubeAutoSummarize: async (value) => {
-            const newValue = value?.newValue || false
+          }
+          if (changes["youtubeAutoSummarize"]) {
+            const newValue = changes["youtubeAutoSummarize"].newValue || false
             const tabs = await browser.tabs.query({
               url: "*://www.youtube.com/watch*"
             })
@@ -128,320 +121,340 @@ export default defineBackground({
               }
             })
           }
+        }
+      })
+      const data = await getInitialConfig()
+      contextMenuClick = data.contextMenuClick
+      actionIconClick = data.actionIconClick
+
+      // Clean up existing menus to prevent duplicates
+      try {
+        await browser.contextMenus.remove(contextMenuId.webui)
+      } catch (e) { }
+      try {
+        await browser.contextMenus.remove(contextMenuId.sidePanel)
+      } catch (e) { }
+
+      try {
+        await browser.contextMenus.create({
+          id: contextMenuId[contextMenuClick],
+          title: contextMenuTitle[contextMenuClick],
+          contexts: ["page", "selection"]
         })
-        const data = await getInitialConfig()
-        contextMenuClick = data.contextMenuClick
-        actionIconClick = data.actionIconClick
+      } catch (e) { }
 
-        // Clean up existing menus to prevent duplicates
-        try {
-          await browser.contextMenus.remove(contextMenuId.webui)
-        } catch (e) { }
-        try {
-          await browser.contextMenus.remove(contextMenuId.sidePanel)
-        } catch (e) { }
+      // Create built-in copilot menus
+      await createBuiltinCopilotMenus()
 
-        try {
-          await browser.contextMenus.create({
-            id: contextMenuId[contextMenuClick],
-            title: contextMenuTitle[contextMenuClick],
-            contexts: ["page", "selection"]
+      // Create custom copilot menus
+      await createCustomCopilotMenus()
+    } catch (error) {
+      console.error("Error in initLogic:", error)
+    }
+  }
+
+  browser.runtime.onMessage.addListener(async (message, sender) => {
+    if (message.type === "refresh_custom_copilot_menus") {
+      await createCustomCopilotMenus()
+      return Promise.resolve({ success: true })
+    } else if (message.type === "refresh_builtin_copilot_menus") {
+      await createBuiltinCopilotMenus()
+      return Promise.resolve({ success: true })
+    } else if (message.type === "check_youtube_summarize_enabled") {
+      const enabled = await getStorage("youtubeAutoSummarize")
+      return Promise.resolve({ enabled: enabled || false })
+    } else if (message.type === "sidepanel") {
+      await (browser as any).sidebarAction.open()
+    } else if (message.type === "pull_model") {
+      const ollamaURL = await getOllamaURL()
+
+      const isRunning = await isOllamaRunning()
+
+      if (!isRunning) {
+        setBadgeText({ text: "E" })
+        setBadgeBackgroundColor({ color: "#FF0000" })
+        setTitle({ title: "Ollama is not running" })
+        setTimeout(() => {
+          clearBadge()
+        }, 5000)
+        return
+      }
+
+      await streamDownload(ollamaURL, message.modelName)
+    } else if (message.type === "cancel_download") {
+      cancelDownload()
+    } else if (message.type === "youtube_summarize") {
+      if (sender.tab?.id) {
+        chrome.sidePanel.open({
+          tabId: sender.tab.id
+        })
+      }
+
+      setTimeout(
+        async () => {
+          const prompt = `Summarize this YouTube video: "${message.videoTitle}".\n\nPlease provide a comprehensive summary of the video content.`
+
+          await browser.runtime.sendMessage({
+            from: "background",
+            type: "yt_summarize",
+            text: prompt
           })
-        } catch (e) { }
+        },
+        isCopilotRunning ? 0 : 5000
+      )
+    } else if (message.type === "fetch_url") {
+      try {
+        console.log("Background fetching:", message.url);
+        const options = message.options || {};
 
-        // Create built-in copilot menus
-        await createBuiltinCopilotMenus()
+        // Ensure we have a headers object to work with
+        const headers = options.headers || {};
 
-        // Create custom copilot menus
-        await createCustomCopilotMenus()
-      } catch (error) {
-        console.error("Error in initLogic:", error)
+        // Add a default User-Agent if not present
+        if (!headers["User-Agent"] && !headers["user-agent"]) {
+          headers["User-Agent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36";
+        }
+
+        options.headers = headers;
+
+        const response = await fetch(message.url, options)
+        const text = await response.text()
+
+        // Convert headers to a plain object
+        const responseHeaders: Record<string, string> = {};
+        response.headers.forEach((value, key) => {
+          responseHeaders[key] = value;
+        });
+
+        return {
+          success: true,
+          text,
+          status: response.status,
+          statusText: response.statusText,
+          headers: responseHeaders,
+          url: response.url
+        }
+      } catch (e: any) {
+        console.error("Background fetch exception:", e);
+        return { success: false, error: e.message || "Unknown error" }
       }
     }
+  })
 
-    browser.runtime.onMessage.addListener(async (message, sender) => {
-      if (message.type === "refresh_custom_copilot_menus") {
-        await createCustomCopilotMenus()
-        return Promise.resolve({ success: true })
-      } else if (message.type === "refresh_builtin_copilot_menus") {
-        await createBuiltinCopilotMenus()
-        return Promise.resolve({ success: true })
-      } else if (message.type === "check_youtube_summarize_enabled") {
-        const enabled = await storage.get("youtubeAutoSummarize")
-        return Promise.resolve({ enabled: enabled || false })
-      } else if (message.type === "sidepanel") {
-        await (browser as any).sidebarAction.open()
-      } else if (message.type === "pull_model") {
-        const ollamaURL = await getOllamaURL()
+  browser.runtime.onConnect.addListener((port) => {
+    if (port.name === "pgCopilot") {
+      isCopilotRunning = true
+      port.onDisconnect.addListener(() => {
+        isCopilotRunning = false
+      })
+    } else if (port.name === "fetch_stream") {
+      let abortController = new AbortController();
 
-        const isRunning = await isOllamaRunning()
+      port.onMessage.addListener(async (msg) => {
+        if (msg.type === "start_fetch") {
+          try {
+            const { url, options } = msg;
+            const response = await fetch(url, {
+              ...options,
+              signal: abortController.signal
+            });
 
-        if (!isRunning) {
-          setBadgeText({ text: "E" })
-          setBadgeBackgroundColor({ color: "#FF0000" })
-          setTitle({ title: "Ollama is not running" })
-          setTimeout(() => {
-            clearBadge()
-          }, 5000)
-          return
-        }
+            // Send initial metadata
+            const responseHeaders: Record<string, string> = {};
+            response.headers.forEach((value, key) => {
+              responseHeaders[key] = value;
+            });
 
-        await streamDownload(ollamaURL, message.modelName)
-      } else if (message.type === "cancel_download") {
-        cancelDownload()
-      } else if (message.type === "youtube_summarize") {
-        if (sender.tab?.id) {
-          chrome.sidePanel.open({
-            tabId: sender.tab.id
-          })
-        }
-
-        setTimeout(
-          async () => {
-            const prompt = `Summarize this YouTube video: "${message.videoTitle}".\n\nPlease provide a comprehensive summary of the video content.`
-
-            await browser.runtime.sendMessage({
-              from: "background",
-              type: "yt_summarize",
-              text: prompt
-            })
-          },
-          isCopilotRunning ? 0 : 5000
-        )
-      } else if (message.type === "fetch_url") {
-        try {
-          console.log("Background fetching:", message.url);
-          const options = message.options || {};
-
-          // Ensure we have a headers object to work with
-          const headers = options.headers || {};
-
-          // Add a default User-Agent if not present
-          if (!headers["User-Agent"] && !headers["user-agent"]) {
-            headers["User-Agent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36";
+            port.postMessage({ type: "done" });
+          } catch (e: any) {
+            port.postMessage({ type: "error", error: e.message || "Unknown error" });
+          } finally {
+            port.disconnect();
           }
-
-          options.headers = headers;
-
-          const response = await fetch(message.url, options)
-          const text = await response.text()
-
-          // Convert headers to a plain object
-          const responseHeaders: Record<string, string> = {};
-          response.headers.forEach((value, key) => {
-            responseHeaders[key] = value;
-          });
-
-          return {
-            success: true,
-            text,
-            status: response.status,
-            statusText: response.statusText,
-            headers: responseHeaders,
-            url: response.url
-          }
-        } catch (e: any) {
-          console.error("Background fetch exception:", e);
-          return { success: false, error: e.message || "Unknown error" }
         }
-      }
-    })
+      });
 
-    browser.runtime.onConnect.addListener((port) => {
-      if (port.name === "pgCopilot") {
-        isCopilotRunning = true
-        port.onDisconnect.addListener(() => {
-          isCopilotRunning = false
-        })
-      } else if (port.name === "fetch_stream") {
-        let abortController = new AbortController();
+      port.onDisconnect.addListener(() => {
+        abortController.abort();
+      });
+    }
+  })
 
-        port.onMessage.addListener(async (msg) => {
-          if (msg.type === "start_fetch") {
-            try {
-              const { url, options } = msg;
-              const response = await fetch(url, {
-                ...options,
-                signal: abortController.signal
-              });
-
-              // Send initial metadata
-              const responseHeaders: Record<string, string> = {};
-              response.headers.forEach((value, key) => {
-                responseHeaders[key] = value;
-              });
-
-              port.postMessage({
-                type: "metadata",
-                status: response.status,
-                statusText: response.statusText,
-                headers: responseHeaders,
-                url: response.url
-              });
-
-              if (response.body) {
-                const reader = response.body.getReader();
-                while (true) {
-                  const { done, value } = await reader.read();
-                  if (done) break;
-                  // Send chunk as Array or Base64 (Array is easier for JSON)
-                  port.postMessage({
-                    type: "chunk",
-                    value: Array.from(value)
-                  });
+  browser.storage.onChanged.addListener(async (changes, area) => {
+    if (area === "local" && changes["urlRewriteEnabled"]) {
+      const newValue = changes["urlRewriteEnabled"].newValue
+      if (newValue) {
+        if (chrome.declarativeNetRequest) {
+          chrome.declarativeNetRequest.updateDynamicRules({
+            addRules: [
+              {
+                id: 1,
+                priority: 1,
+                action: {
+                  type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+                  requestHeaders: [
+                    {
+                      header: "Origin",
+                      operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+                      value: "http://127.0.0.1:11434"
+                    }
+                  ]
+                },
+                condition: {
+                  urlFilter: "http://127.0.0.1:11434/*",
+                  resourceTypes: [
+                    chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST
+                  ]
                 }
               }
-              port.postMessage({ type: "done" });
-            } catch (e: any) {
-              port.postMessage({ type: "error", error: e.message || "Unknown error" });
-            } finally {
-              port.disconnect();
-            }
-          }
-        });
-
-        port.onDisconnect.addListener(() => {
-          abortController.abort();
-        });
-      }
-    })
-
-    chrome.action.onClicked.addListener((tab) => {
-      if (actionIconClick === "webui") {
-        chrome.tabs.create({ url: chrome.runtime.getURL("/options.html") })
+            ],
+            removeRuleIds: [1]
+          })
+        }
       } else {
-        chrome.sidePanel.open({
-          tabId: tab.id!
-        })
+        if (chrome.declarativeNetRequest) {
+          chrome.declarativeNetRequest.updateDynamicRules({
+            removeRuleIds: [1]
+          })
+        }
       }
-    })
-
-    const contextMenuTitle = {
-      webui: browser.i18n.getMessage("openOptionToChat" as any),
-      sidePanel: browser.i18n.getMessage("openSidePanelToChat" as any)
     }
+  })
 
-    browser.contextMenus.onClicked.addListener(async (info, tab) => {
-      if (info.menuItemId === "open-side-panel-pa") {
-        chrome.sidePanel.open({
-          tabId: tab.id!
-        })
-      } else if (info.menuItemId === "open-web-ui-pa") {
-        browser.tabs.create({
-          url: browser.runtime.getURL("/options.html")
-        })
-      } else if (info.menuItemId === "summarize-pa") {
-        chrome.sidePanel.open({
-          tabId: tab.id!
-        })
-        // this is a bad method hope somone can fix it :)
-        setTimeout(
-          async () => {
-            await browser.runtime.sendMessage({
-              from: "background",
-              type: "summary",
-              text: info.selectionText
+  chrome.action.onClicked.addListener((tab) => {
+    if (actionIconClick === "webui") {
+      chrome.tabs.create({ url: chrome.runtime.getURL("/options.html") })
+    } else {
+      chrome.sidePanel.open({
+        tabId: tab.id!
+      })
+    }
+  })
+
+  const contextMenuTitle = {
+    webui: browser.i18n.getMessage("openOptionToChat" as any),
+    sidePanel: browser.i18n.getMessage("openSidePanelToChat" as any)
+  }
+
+  browser.contextMenus.onClicked.addListener(async (info, tab) => {
+    if (info.menuItemId === "open-side-panel-pa") {
+      chrome.sidePanel.open({
+        tabId: tab.id!
+      })
+    } else if (info.menuItemId === "open-web-ui-pa") {
+      browser.tabs.create({
+        url: browser.runtime.getURL("/options.html")
+      })
+    } else if (info.menuItemId === "summarize-pa") {
+      chrome.sidePanel.open({
+        tabId: tab.id!
+      })
+      // this is a bad method hope somone can fix it :)
+      setTimeout(
+        async () => {
+          await browser.runtime.sendMessage({
+            from: "background",
+            type: "summary",
+            text: info.selectionText
+          })
+        },
+        isCopilotRunning ? 0 : 5000
+      )
+    } else if (info.menuItemId === "rephrase-pa") {
+      chrome.sidePanel.open({
+        tabId: tab.id!
+      })
+      setTimeout(
+        async () => {
+          await browser.runtime.sendMessage({
+            type: "rephrase",
+            from: "background",
+            text: info.selectionText
+          })
+        },
+        isCopilotRunning ? 0 : 5000
+      )
+    } else if (info.menuItemId === "translate-pg") {
+      chrome.sidePanel.open({
+        tabId: tab.id!
+      })
+
+      setTimeout(
+        async () => {
+          await browser.runtime.sendMessage({
+            type: "translate",
+            from: "background",
+            text: info.selectionText
+          })
+        },
+        isCopilotRunning ? 0 : 5000
+      )
+    } else if (info.menuItemId === "explain-pa") {
+      chrome.sidePanel.open({
+        tabId: tab.id!
+      })
+
+      setTimeout(
+        async () => {
+          await browser.runtime.sendMessage({
+            type: "explain",
+            from: "background",
+            text: info.selectionText
+          })
+        },
+        isCopilotRunning ? 0 : 5000
+      )
+    } else if (info.menuItemId === "custom-pg") {
+      chrome.sidePanel.open({
+        tabId: tab.id!
+      })
+
+      setTimeout(
+        async () => {
+          await browser.runtime.sendMessage({
+            type: "custom",
+            from: "background",
+            text: info.selectionText
+          })
+        },
+        isCopilotRunning ? 0 : 5000
+      )
+    } else if (typeof info.menuItemId === "string" && info.menuItemId.startsWith("custom_copilot_")) {
+      // Handle custom copilot prompts
+      chrome.sidePanel.open({
+        tabId: tab.id!
+      })
+
+      setTimeout(
+        async () => {
+          await browser.runtime.sendMessage({
+            type: info.menuItemId,
+            from: "background",
+            text: info.selectionText
+          })
+        },
+        isCopilotRunning ? 0 : 5000
+      )
+    }
+  })
+
+  browser.commands.onCommand.addListener((command) => {
+    switch (command) {
+      case "execute_side_panel":
+        chrome.tabs.query(
+          { active: true, currentWindow: true },
+          async (tabs) => {
+            const tab = tabs[0]
+            chrome.sidePanel.open({
+              tabId: tab.id!
             })
-          },
-          isCopilotRunning ? 0 : 5000
+          }
         )
-      } else if (info.menuItemId === "rephrase-pa") {
-        chrome.sidePanel.open({
-          tabId: tab.id!
-        })
-        setTimeout(
-          async () => {
-            await browser.runtime.sendMessage({
-              type: "rephrase",
-              from: "background",
-              text: info.selectionText
-            })
-          },
-          isCopilotRunning ? 0 : 5000
-        )
-      } else if (info.menuItemId === "translate-pg") {
-        chrome.sidePanel.open({
-          tabId: tab.id!
-        })
+        break
+      default:
+        break
+    }
+  })
 
-        setTimeout(
-          async () => {
-            await browser.runtime.sendMessage({
-              type: "translate",
-              from: "background",
-              text: info.selectionText
-            })
-          },
-          isCopilotRunning ? 0 : 5000
-        )
-      } else if (info.menuItemId === "explain-pa") {
-        chrome.sidePanel.open({
-          tabId: tab.id!
-        })
-
-        setTimeout(
-          async () => {
-            await browser.runtime.sendMessage({
-              type: "explain",
-              from: "background",
-              text: info.selectionText
-            })
-          },
-          isCopilotRunning ? 0 : 5000
-        )
-      } else if (info.menuItemId === "custom-pg") {
-        chrome.sidePanel.open({
-          tabId: tab.id!
-        })
-
-        setTimeout(
-          async () => {
-            await browser.runtime.sendMessage({
-              type: "custom",
-              from: "background",
-              text: info.selectionText
-            })
-          },
-          isCopilotRunning ? 0 : 5000
-        )
-      } else if (typeof info.menuItemId === "string" && info.menuItemId.startsWith("custom_copilot_")) {
-        // Handle custom copilot prompts
-        chrome.sidePanel.open({
-          tabId: tab.id!
-        })
-
-        setTimeout(
-          async () => {
-            await browser.runtime.sendMessage({
-              type: info.menuItemId,
-              from: "background",
-              text: info.selectionText
-            })
-          },
-          isCopilotRunning ? 0 : 5000
-        )
-      }
-    })
-
-    browser.commands.onCommand.addListener((command) => {
-      switch (command) {
-        case "execute_side_panel":
-          chrome.tabs.query(
-            { active: true, currentWindow: true },
-            async (tabs) => {
-              const tab = tabs[0]
-              chrome.sidePanel.open({
-                tabId: tab.id!
-              })
-            }
-          )
-          break
-        default:
-          break
-      }
-    })
-
-    initialize()
-  },
-  persistent: true
+  initialize()
 })

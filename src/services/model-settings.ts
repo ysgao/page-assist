@@ -1,9 +1,4 @@
-import { Storage } from "@plasmohq/storage"
-const storage = new Storage({
-  area: "local"
-})
-
-const storage2 = new Storage()
+import { getStorage, setStorage } from "@/services/storage"
 
 type ModelSettings = {
   f16KV?: boolean
@@ -78,7 +73,7 @@ export const getAllModelSettings = async () => {
   try {
     const settings: ModelSettings = {}
     for (const key of keys) {
-      const value = await storage.get(key)
+      const value = await getStorage(key)
       settings[key] = value
       // if (!value && key === "keepAlive") {
       //   settings[key] = "5m"
@@ -95,13 +90,13 @@ export const setModelSetting = async (
   key: string,
   value: string | number | boolean
 ) => {
-  await storage.set(key, value)
+  await setStorage(key, value)
 }
 
 export const getAllDefaultModelSettings = async (): Promise<ModelSettings> => {
   const settings: ModelSettings = {}
   for (const key of keys) {
-    const value = await storage.get(key)
+    const value = await getStorage(key)
     settings[key] = value
     // if (!value && key === "keepAlive") {
     //   settings[key] = "5m"
@@ -111,7 +106,7 @@ export const getAllDefaultModelSettings = async (): Promise<ModelSettings> => {
 }
 
 export const lastUsedChatModelEnabled = async (): Promise<boolean> => {
-  const isLastUsedChatModelEnabled = await storage2.get<boolean | undefined>(
+  const isLastUsedChatModelEnabled = await getStorage<boolean | undefined>(
     "restoreLastChatModel"
   )
   return isLastUsedChatModelEnabled ?? false
@@ -120,27 +115,27 @@ export const lastUsedChatModelEnabled = async (): Promise<boolean> => {
 export const setLastUsedChatModelEnabled = async (
   enabled: boolean
 ): Promise<void> => {
-  await storage.set("restoreLastChatModel", enabled)
+  await setStorage("restoreLastChatModel", enabled)
 }
 
 export const getLastUsedChatModel = async (
   historyId: string
 ): Promise<string | undefined> => {
-  return await storage.get<string | undefined>(`lastUsedChatModel-${historyId}`)
+  return await getStorage<string | undefined>(`lastUsedChatModel-${historyId}`)
 }
 
 export const setLastUsedChatModel = async (
   historyId: string,
   model: string
 ): Promise<void> => {
-  await storage.set(`lastUsedChatModel-${historyId}`, model)
+  await setStorage(`lastUsedChatModel-${historyId}`, model)
 }
 
 
 export const getLastUsedChatSystemPrompt = async (
   historyId: string
 ): Promise<{ prompt_id?: string; prompt_content?: string } | undefined> => {
-  return await storage.get<{ prompt_id?: string; prompt_content?: string } | undefined>(
+  return await getStorage<{ prompt_id?: string; prompt_content?: string } | undefined>(
     `lastUsedChatSystemPrompt-${historyId}`
   )
 }
@@ -152,13 +147,13 @@ export const setLastUsedChatSystemPrompt = async (
     prompt_content?: string
   }
 ): Promise<void> => {
-  await storage.set(`lastUsedChatSystemPrompt-${historyId}`, prompt)
+  await setStorage(`lastUsedChatSystemPrompt-${historyId}`, prompt)
 }
 
 
 export const getModelSettings = async (model_id: string) => {
   try {
-    const settings = await storage.get<ModelSettings>(`modelSettings:${model_id}`)
+    const settings = await getStorage<ModelSettings>(`modelSettings:${model_id}`)
     if (!settings) {
       return {}
     }
@@ -169,9 +164,9 @@ export const getModelSettings = async (model_id: string) => {
   }
 }
 
-export const setModelSettings = async ({model_id,settings}: {model_id: string, settings: Partial<ModelSettings>}) => {
+export const setModelSettings = async ({ model_id, settings }: { model_id: string, settings: Partial<ModelSettings> }) => {
   try {
-    await storage.set(`modelSettings:${model_id}`, settings)
+    await setStorage(`modelSettings:${model_id}`, settings)
   } catch (error) {
     console.error(error)
   }

@@ -1,9 +1,3 @@
-import { Storage } from "@plasmohq/storage"
-
-const storage = new Storage()
-const storage2 = new Storage({
-  area: "local"
-})
 
 const DEFAULT_TTS_PROVIDER = "browser"
 
@@ -12,7 +6,7 @@ const AVAILABLE_TTS_PROVIDERS = ["browser", "elevenlabs"] as const
 export const getTTSProvider = async (): Promise<
   (typeof AVAILABLE_TTS_PROVIDERS)[number]
 > => {
-  const ttsProvider = await storage.get("ttsProvider")
+  const ttsProvider = await getStorage("ttsProvider")
   if (!ttsProvider || ttsProvider.length === 0) {
     return DEFAULT_TTS_PROVIDER
   }
@@ -20,7 +14,7 @@ export const getTTSProvider = async (): Promise<
 }
 
 export const setTTSProvider = async (ttsProvider: string) => {
-  await storage.set("ttsProvider", ttsProvider)
+  await setStorage("ttsProvider", ttsProvider)
 }
 
 export const getBrowserTTSVoices = async () => {
@@ -37,16 +31,16 @@ export const getBrowserTTSVoices = async () => {
 }
 
 export const getVoice = async () => {
-  const voice = await storage.get("voice")
+  const voice = await getStorage("voice")
   return voice
 }
 
 export const setVoice = async (voice: string) => {
-  await storage.set("voice", voice)
+  await setStorage("voice", voice)
 }
 
 export const isTTSEnabled = async () => {
-  const data = await storage.get("isTTSEnabled")
+  const data = await getStorage("isTTSEnabled")
   if (!data || data.length === 0) {
     return true
   }
@@ -54,47 +48,47 @@ export const isTTSEnabled = async () => {
 }
 
 export const setTTSEnabled = async (isTTSEnabled: boolean) => {
-  await storage.set("isTTSEnabled", isTTSEnabled.toString())
+  await setStorage("isTTSEnabled", isTTSEnabled.toString())
 }
 
 export const isSSMLEnabled = async () => {
-  const data = await storage.get("isSSMLEnabled")
+  const data = await getStorage("isSSMLEnabled")
   return data === "true"
 }
 
 export const setSSMLEnabled = async (isSSMLEnabled: boolean) => {
-  await storage.set("isSSMLEnabled", isSSMLEnabled.toString())
+  await setStorage("isSSMLEnabled", isSSMLEnabled.toString())
 }
 
 export const getElevenLabsApiKey = async () => {
-  const data = await storage.get("elevenLabsApiKey")
+  const data = await getStorage("elevenLabsApiKey")
   return data
 }
 
 export const setElevenLabsApiKey = async (elevenLabsApiKey: string) => {
-  await storage.set("elevenLabsApiKey", elevenLabsApiKey)
+  await setStorage("elevenLabsApiKey", elevenLabsApiKey)
 }
 
 export const getElevenLabsVoiceId = async () => {
-  const data = await storage.get("elevenLabsVoiceId")
+  const data = await getStorage("elevenLabsVoiceId")
   return data
 }
 
 export const setElevenLabsVoiceId = async (elevenLabsVoiceId: string) => {
-  await storage.set("elevenLabsVoiceId", elevenLabsVoiceId)
+  await setStorage("elevenLabsVoiceId", elevenLabsVoiceId)
 }
 
 export const getElevenLabsModel = async () => {
-  const data = await storage.get("elevenLabsModel")
+  const data = await getStorage("elevenLabsModel")
   return data
 }
 
 export const setElevenLabsModel = async (elevenLabsModel: string) => {
-  await storage.set("elevenLabsModel", elevenLabsModel)
+  await setStorage("elevenLabsModel", elevenLabsModel)
 }
 
 export const getOpenAITTSBaseUrl = async () => {
-  const data = await storage.get("openAITTSBaseUrl")
+  const data = await getStorage("openAITTSBaseUrl")
   if (!data || data.length === 0) {
     return "https://api.openai.com/v1"
   }
@@ -102,16 +96,16 @@ export const getOpenAITTSBaseUrl = async () => {
 }
 
 export const setOpenAITTSBaseUrl = async (openAITTSBaseUrl: string) => {
-  await storage.set("openAITTSBaseUrl", openAITTSBaseUrl)
+  await setStorage("openAITTSBaseUrl", openAITTSBaseUrl)
 }
 
 export const getOpenAITTSApiKey = async () => {
-  const data = await storage.get("openAITTSApiKey")
+  const data = await getStorage("openAITTSApiKey")
   return data || ''
 }
 
 export const getOpenAITTSModel = async () => {
-  const data = await storage.get("openAITTSModel")
+  const data = await getStorage("openAITTSModel")
   if (!data || data.length === 0) {
     return "tts-1"
   }
@@ -119,16 +113,16 @@ export const getOpenAITTSModel = async () => {
 }
 
 export const setOpenAITTSModel = async (openAITTSModel: string) => {
-  await storage.set("openAITTSModel", openAITTSModel)
+  await setStorage("openAITTSModel", openAITTSModel)
 }
 
 
 export const setOpenAITTSApiKey = async (openAITTSApiKey: string) => {
-  await storage.set("openAITTSApiKey", openAITTSApiKey)
+  await setStorage("openAITTSApiKey", openAITTSApiKey)
 }
 
 export const getOpenAITTSVoice = async () => {
-  const data = await storage.get("openAITTSVoice")
+  const data = await getStorage("openAITTSVoice")
   if (!data || data.length === 0) {
     return "alloy"
   }
@@ -136,12 +130,12 @@ export const getOpenAITTSVoice = async () => {
 }
 
 export const setOpenAITTSVoice = async (openAITTSVoice: string) => {
-  await storage.set("openAITTSVoice", openAITTSVoice)
+  await setStorage("openAITTSVoice", openAITTSVoice)
 }
 
 
 export const getResponseSplitting = async () => {
-  const data = await storage.get("ttsResponseSplitting")
+  const data = await getStorage("ttsResponseSplitting")
   if (!data || data.length === 0 || data === "") {
     return "punctuation"
   }
@@ -149,7 +143,7 @@ export const getResponseSplitting = async () => {
 }
 
 export const getRemoveReasoningTagTTS = async () => {
-  const data = await storage2.get("removeReasoningTagTTS")
+  const data = await getStorage("removeReasoningTagTTS")
   if (!data || data.length === 0 || data === "") {
     return true
   }
@@ -157,31 +151,33 @@ export const getRemoveReasoningTagTTS = async () => {
 }
 
 export const setResponseSplitting = async (responseSplitting: string) => {
-  await storage.set("ttsResponseSplitting", responseSplitting)
+  await setStorage("ttsResponseSplitting", responseSplitting)
 }
 
 export const setRemoveReasoningTagTTS = async (removeReasoningTagTTS: boolean) => {
-  await storage2.set("removeReasoningTagTTS", removeReasoningTagTTS.toString())
+  await setStorage("removeReasoningTagTTS", removeReasoningTagTTS.toString())
 }
 
 
 export const isTTSAutoPlayEnabled = async () => {
-  const data = await storage.get<boolean | undefined>("isTTSAutoPlayEnabled")
+  const data = await getStorage<boolean | undefined>("isTTSAutoPlayEnabled")
   return data || false
 }
 
 export const setTTSAutoPlayEnabled = async (isTTSAutoPlayEnabled: boolean) => {
-  await storage.set("isTTSAutoPlayEnabled", isTTSAutoPlayEnabled)
+  await setStorage("isTTSAutoPlayEnabled", isTTSAutoPlayEnabled)
 }
 
 export const getSpeechPlaybackSpeed = async () => {
-  const data = await storage.get<number | undefined>("speechPlaybackSpeed")
+  const data = await getStorage<number | undefined>("speechPlaybackSpeed")
   return data || 1
 }
 
 export const setSpeechPlaybackSpeed = async (speechPlaybackSpeed: number) => {
-  await storage.set("speechPlaybackSpeed", speechPlaybackSpeed)
+  await setStorage("speechPlaybackSpeed", speechPlaybackSpeed)
 }
+
+import { getStorage, setStorage } from "@/services/storage"
 
 export const getTTSSettings = async () => {
   const [

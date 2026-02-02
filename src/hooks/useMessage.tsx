@@ -1,17 +1,5 @@
-import React from "react"
-import { cleanUrl } from "~/libs/clean-url"
-import {
-  defaultEmbeddingModelForRag,
-  geWebSearchFollowUpPrompt,
-  getOllamaURL,
-  promptForRag,
-  systemPromptForNonRag
-} from "~/services/ollama"
-import { useStoreMessageOption, type Message } from "~/store/option"
-import { useStoreMessage } from "~/store"
-import { getContentFromCurrentTab } from "~/libs/get-html"
-import { memoryEmbedding } from "@/utils/memory-embeddings"
-import { ChatHistory } from "@/store/option"
+import { formatDocs } from "@/chain/chat-with-x"
+import { usePageAssist } from "@/context"
 import {
   deleteChatForEdit,
   generateID,
@@ -19,18 +7,8 @@ import {
   removeMessageUsingHistoryId,
   updateMessageByIndex
 } from "@/db/dexie/helpers"
-import { notification } from "antd"
-import { useTranslation } from "react-i18next"
-import { usePageAssist } from "@/context"
-import { formatDocs } from "@/chain/chat-with-x"
-import { useStorage } from "@plasmohq/storage/hook"
-import { useStoreChatModelSettings } from "@/store/model"
-import { getAllDefaultModelSettings } from "@/services/model-settings"
-import { getSystemPromptForWeb, isQueryHaveWebsite } from "@/web/web"
-import { pageAssistModel } from "@/models"
-import { getPrompt } from "@/services/application"
-import { humanMessageFormatter } from "@/utils/human-message"
-import { pageAssistEmbeddingModel } from "@/models/embedding"
+import { getModelNicknameByID } from "@/db/dexie/nickname"
+import { useStorage } from "@/hooks/use-storage"
 import { PAMemoryVectorStore } from "@/libs/PAMemoryVectorStore"
 import { getScreenshotFromCurrentTab } from "@/libs/get-screenshot"
 import {
@@ -39,15 +17,37 @@ import {
   mergeReasoningContent,
   removeReasoning
 } from "@/libs/reasoning"
-import { getModelNicknameByID } from "@/db/dexie/nickname"
+import { pageAssistModel } from "@/models"
+import { pageAssistEmbeddingModel } from "@/models/embedding"
+import { getNoOfRetrievedDocs } from "@/services/app"
+import { getPrompt } from "@/services/application"
+import { getAllDefaultModelSettings } from "@/services/model-settings"
+import { useStoreChatModelSettings } from "@/store/model"
+import { ChatHistory } from "@/store/option"
+import { humanMessageFormatter } from "@/utils/human-message"
+import { memoryEmbedding } from "@/utils/memory-embeddings"
 import { systemPromptFormatter } from "@/utils/system-message"
+import { updatePageTitle } from "@/utils/update-page-title"
+import { getSystemPromptForWeb, isQueryHaveWebsite } from "@/web/web"
+import { notification } from "antd"
+import React from "react"
+import { useTranslation } from "react-i18next"
+import { cleanUrl } from "~/libs/clean-url"
+import { getContentFromCurrentTab } from "~/libs/get-html"
+import {
+  defaultEmbeddingModelForRag,
+  geWebSearchFollowUpPrompt,
+  getOllamaURL,
+  promptForRag,
+  systemPromptForNonRag
+} from "~/services/ollama"
+import { useStoreMessage } from "~/store"
+import { useStoreMessageOption, type Message } from "~/store/option"
 import { createBranchMessage } from "./handlers/messageHandlers"
 import {
   createSaveMessageOnError,
   createSaveMessageOnSuccess
 } from "./utils/messageHelpers"
-import { updatePageTitle } from "@/utils/update-page-title"
-import { getNoOfRetrievedDocs } from "@/services/app"
 
 export const useMessage = () => {
   const {
@@ -574,7 +574,7 @@ export const useMessage = () => {
       if (visionImage === "") {
         throw new Error(
           data?.error ||
-            "Please close and reopen the side panel. This is a bug that will be fixed soon."
+          "Please close and reopen the side panel. This is a bug that will be fixed soon."
         )
       }
 
@@ -775,11 +775,11 @@ export const useMessage = () => {
     // Process multiple images if provided
     const processedImages = images?.length > 0
       ? images.map(img => {
-          if (img.length > 0 && !img.startsWith('data:')) {
-            return `data:image/jpeg;base64,${img.split(",")[1]}`
-          }
-          return img
-        }).filter(img => img.length > 0)
+        if (img.length > 0 && !img.startsWith('data:')) {
+          return `data:image/jpeg;base64,${img.split(",")[1]}`
+        }
+        return img
+      }).filter(img => img.length > 0)
       : image.length > 0 ? [image] : []
 
     const ollama = await pageAssistModel({
@@ -1043,11 +1043,11 @@ export const useMessage = () => {
     // Process multiple images if provided
     const processedImages = images?.length > 0
       ? images.map(img => {
-          if (img.length > 0 && !img.startsWith('data:')) {
-            return `data:image/jpeg;base64,${img.split(",")[1]}`
-          }
-          return img
-        }).filter(img => img.length > 0)
+        if (img.length > 0 && !img.startsWith('data:')) {
+          return `data:image/jpeg;base64,${img.split(",")[1]}`
+        }
+        return img
+      }).filter(img => img.length > 0)
       : image.length > 0 ? [image] : []
 
     const ollama = await pageAssistModel({
@@ -1374,11 +1374,11 @@ export const useMessage = () => {
     // Process multiple images if provided
     const processedImages = images?.length > 0
       ? images.map(img => {
-          if (img.length > 0 && !img.startsWith('data:')) {
-            return `data:image/jpeg;base64,${img.split(",")[1]}`
-          }
-          return img
-        }).filter(img => img.length > 0)
+        if (img.length > 0 && !img.startsWith('data:')) {
+          return `data:image/jpeg;base64,${img.split(",")[1]}`
+        }
+        return img
+      }).filter(img => img.length > 0)
       : image.length > 0 ? [image] : []
 
     const ollama = await pageAssistModel({

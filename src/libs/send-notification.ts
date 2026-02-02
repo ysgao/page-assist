@@ -1,9 +1,9 @@
-import { Storage } from "@plasmohq/storage"
-const storage = new Storage()
+import { getStorage } from "@/services/storage"
+import { browser } from "wxt/browser"
 
 export const sendNotification = async (title: string, message: string) => {
   try {
-    const sendNotificationAfterIndexing = await storage.get<boolean>(
+    const sendNotificationAfterIndexing = await getStorage<boolean>(
       "sendNotificationAfterIndexing"
     )
     if (sendNotificationAfterIndexing) {

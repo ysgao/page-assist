@@ -1,13 +1,9 @@
-import { Storage } from "@plasmohq/storage"
-
-const storage = new Storage({
-    area: "local"
-})
+import { getStorage } from "@/services/storage"
 
 
 export const getInitialConfig = async () => {
-    const actionIconClickValue = await storage.get("actionIconClick")
-    const contextMenuClickValue = await storage.get("contextMenuClick")
+    const actionIconClickValue = await getStorage("actionIconClick")
+    const contextMenuClickValue = await getStorage("contextMenuClick")
 
     let actionIconClick = actionIconClickValue || "webui"
     let contextMenuClick = contextMenuClickValue || "sidePanel"
@@ -20,6 +16,6 @@ export const getInitialConfig = async () => {
 }
 
 export const getActionIconClick = async () => {
-    const actionIconClickValue = await storage.get("actionIconClick")
+    const actionIconClickValue = await getStorage("actionIconClick")
     return actionIconClickValue || "webui"
 }

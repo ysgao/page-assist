@@ -1,5 +1,9 @@
+import { ProviderIcons } from "@/components/Common/ProviderIcon"
+import { useStorage } from "@/hooks/use-storage"
+import { getNoOfRetrievedDocs, getTotalFilePerKB } from "@/services/app"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Avatar, Form, Input, InputNumber, Select, Skeleton } from "antd"
+import { useTranslation } from "react-i18next"
 import { SaveButton } from "~/components/Common/SaveButton"
 import {
   defaultEmbeddingChunkOverlap,
@@ -10,14 +14,10 @@ import {
   getEmbeddingModels,
   saveForRag
 } from "~/services/ollama"
-import { SettingPrompt } from "./prompt"
-import { useTranslation } from "react-i18next"
-import { getNoOfRetrievedDocs, getTotalFilePerKB } from "@/services/app"
-import { SidepanelRag } from "./sidepanel-rag"
-import { ProviderIcons } from "@/components/Common/ProviderIcon"
-import { SettingTitle } from "./title"
 import { MemorySettings } from "./memory"
-import { useStorage } from "@plasmohq/storage/hook"
+import { SettingPrompt } from "./prompt"
+import { SidepanelRag } from "./sidepanel-rag"
+import { SettingTitle } from "./title"
 
 export const RagSettings = () => {
   const { t } = useTranslation("settings")

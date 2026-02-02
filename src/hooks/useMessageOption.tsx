@@ -1,37 +1,35 @@
-import React from "react"
-import { type ChatHistory, type Message } from "~/store/option"
-import { useStoreMessageOption } from "~/store/option"
-import { removeMessageUsingHistoryId, saveHistory, saveMessage } from "@/db/dexie/helpers"
-import { useNavigate } from "react-router-dom"
-import { notification } from "antd"
-import { useTranslation } from "react-i18next"
 import { usePageAssist } from "@/context"
-import { useWebUI } from "@/store/webui"
-import { useStorage } from "@plasmohq/storage/hook"
-import { useStoreChatModelSettings } from "@/store/model"
-import { ChatDocuments } from "@/models/ChatTypes"
-import { searchChatMode } from "./chat-modes/searchChatMode"
-import { normalChatMode } from "./chat-modes/normalChatMode"
-import { continueChatMode } from "./chat-modes/continueChatMode"
-import { ragMode } from "./chat-modes/ragMode"
-import {
-  focusTextArea,
-  validateBeforeSubmit,
-  createSaveMessageOnSuccess,
-  createSaveMessageOnError
-} from "./utils/messageHelpers"
-import {
-  createRegenerateLastMessage,
-  createEditMessage,
-  createStopStreamingRequest,
-  createBranchMessage
-} from "./handlers/messageHandlers"
-import { tabChatMode } from "./chat-modes/tabChatMode"
-import { documentChatMode } from "./chat-modes/documentChatMode"
-import { generateID } from "@/db/dexie/helpers"
+import { generateID, removeMessageUsingHistoryId, saveHistory, saveMessage } from "@/db/dexie/helpers"
 import { UploadedFile } from "@/db/dexie/types"
-import { updatePageTitle } from "@/utils/update-page-title"
+import { useStorage } from "@/hooks/use-storage"
+import { ChatDocuments } from "@/models/ChatTypes"
 import { generateTitle } from "@/services/title"
+import { useStoreChatModelSettings } from "@/store/model"
+import { useWebUI } from "@/store/webui"
+import { updatePageTitle } from "@/utils/update-page-title"
+import { notification } from "antd"
+import React from "react"
+import { useTranslation } from "react-i18next"
+import { useNavigate } from "react-router-dom"
+import { useStoreMessageOption, type ChatHistory, type Message } from "~/store/option"
+import { continueChatMode } from "./chat-modes/continueChatMode"
+import { documentChatMode } from "./chat-modes/documentChatMode"
+import { normalChatMode } from "./chat-modes/normalChatMode"
+import { ragMode } from "./chat-modes/ragMode"
+import { searchChatMode } from "./chat-modes/searchChatMode"
+import { tabChatMode } from "./chat-modes/tabChatMode"
+import {
+  createBranchMessage,
+  createEditMessage,
+  createRegenerateLastMessage,
+  createStopStreamingRequest
+} from "./handlers/messageHandlers"
+import {
+  createSaveMessageOnError,
+  createSaveMessageOnSuccess,
+  focusTextArea,
+  validateBeforeSubmit
+} from "./utils/messageHelpers"
 
 export const useMessageOption = () => {
   const {

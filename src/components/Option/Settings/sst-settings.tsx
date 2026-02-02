@@ -1,4 +1,4 @@
-import { useStorage } from "@plasmohq/storage/hook"
+import { useStorage } from "@/hooks/use-storage"
 import { InputNumber, Select, Switch } from "antd"
 import { useTranslation } from "react-i18next"
 import { SUPPORTED_LANGUAGES } from "~/utils/supported-languages"
@@ -24,9 +24,8 @@ export const SSTSettings = ({ hideBorder }: { hideBorder?: boolean }) => {
     <div>
       <div className="mb-5">
         <h2
-          className={`${
-            !hideBorder ? "text-base font-semibold leading-7" : "text-md"
-          } text-gray-900 dark:text-white`}>
+          className={`${!hideBorder ? "text-base font-semibold leading-7" : "text-md"
+            } text-gray-900 dark:text-white`}>
           {t("generalSettings.stt.heading")}
         </h2>
         {!hideBorder && (

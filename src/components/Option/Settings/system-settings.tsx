@@ -1,14 +1,13 @@
 import { BetaTag } from "@/components/Common/Beta"
 import { useFontSize } from "@/context/FontSizeProvider"
 import { PageAssistDatabase } from "@/db/dexie/chat"
+import { useStorage } from "@/hooks/use-storage"
 import { useMessageOption } from "@/hooks/useMessageOption"
 import {
   exportPageAssistData,
   importPageAssistData
 } from "@/libs/export-import"
 import { toBase64 } from "@/libs/to-base64"
-import { Storage } from "@plasmohq/storage"
-import { useStorage } from "@plasmohq/storage/hook"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { notification, Select, Switch } from "antd"
 import { Loader2, RotateCcw, Upload } from "lucide-react"
@@ -27,40 +26,20 @@ export const SystemSettings = () => {
   )
 
   const [storageSyncEnabled, setStorageSyncEnabled] = useStorage(
-    {
-      key: "storageSyncEnabled",
-      instance: new Storage({
-        area: "local"
-      })
-    },
+    "storageSyncEnabled",
     true
   )
 
   const [actionIconClick, setActionIconClick] = useStorage(
-    {
-      key: "actionIconClick",
-      instance: new Storage({
-        area: "local"
-      })
-    },
+    "actionIconClick",
     "webui"
   )
 
   const [contextMenuClick, setContextMenuClick] = useStorage(
-    {
-      key: "contextMenuClick",
-      instance: new Storage({
-        area: "local"
-      })
-    },
+    "contextMenuClick",
     "sidePanel"
   )
-  const [chatBackgroundImage, setChatBackgroundImage] = useStorage({
-    key: "chatBackgroundImage",
-    instance: new Storage({
-      area: "local"
-    })
-  })
+  const [chatBackgroundImage, setChatBackgroundImage] = useStorage("chatBackgroundImage", "")
 
   const importDataMutation = useMutation({
     mutationFn: async (file: File) => {

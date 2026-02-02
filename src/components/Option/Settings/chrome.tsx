@@ -1,11 +1,11 @@
-import { useStorage } from "@plasmohq/storage/hook"
-import { useQuery } from "@tanstack/react-query"
-import { Alert, Skeleton, Switch, Modal, Progress, message } from "antd"
-import { useTranslation } from "react-i18next"
-import { getChromeAISupported } from "@/utils/chrome"
 import Markdown from "@/components/Common/Markdown"
+import { useStorage } from "@/hooks/use-storage"
+import { getChromeAISupported } from "@/utils/chrome"
 import { downloadChromeAIModel } from "@/utils/chrome-download"
+import { useQuery } from "@tanstack/react-query"
+import { Alert, Modal, Progress, Skeleton, Switch, message } from "antd"
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 export const ChromeApp = () => {
   const { t } = useTranslation("chrome")
@@ -33,7 +33,7 @@ export const ChromeApp = () => {
       setShowWarningModal(false)
 
       await downloadChromeAIModel((progress) => {
-        console.log("Download progress:", progress) 
+        console.log("Download progress:", progress)
         const percentage = Math.round(progress.loaded * 100)
         setDownloadProgress(percentage)
       })

@@ -1,14 +1,14 @@
+import { AdvanceOllamaSettings } from "@/components/Common/Settings/AdvanceOllamaSettings"
+import { useStorage } from "@/hooks/use-storage"
 import { useQuery } from "@tanstack/react-query"
 import { Collapse, Skeleton, Switch } from "antd"
+import { AlertCircleIcon } from "lucide-react"
 import { useState } from "react"
+import { Trans, useTranslation } from "react-i18next"
+import { Link } from "react-router-dom"
 import { SaveButton } from "~/components/Common/SaveButton"
 import { getOllamaURL, setOllamaURL as saveOllamaURL } from "~/services/ollama"
-import { Trans, useTranslation } from "react-i18next"
-import { AdvanceOllamaSettings } from "@/components/Common/Settings/AdvanceOllamaSettings"
 import { ModelSettings } from "./model-settings"
-import { useStorage } from "@plasmohq/storage/hook"
-import { AlertCircleIcon } from "lucide-react"
-import { Link } from "react-router-dom"
 export const SettingsOllama = () => {
   const [ollamaURL, setOllamaURL] = useState<string>("")
   const [ollamaEnabled, setOllamaEnabled] = useStorage(

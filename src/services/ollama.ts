@@ -2,7 +2,6 @@ import { ollamaFormatAllCustomModels } from "@/db/dexie/models"
 import { getAllModelStates } from "@/db/dexie/modelState"
 import { getAllModelNicknames } from "@/db/dexie/nickname"
 import { fetchWithProxy } from "@/libs/fetch-proxy"
-import { Storage } from "@plasmohq/storage"
 import { cleanUrl } from "../libs/clean-url"
 import { urlRewriteRuntime } from "../libs/runtime"
 import {
@@ -11,8 +10,7 @@ import {
   setTotalFilePerKB
 } from "./app"
 import { getChromeAIModel } from "./chrome"
-
-const storage = new Storage()
+import { getStorage, setStorage } from "./storage"
 
 const DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434"
 const DEFAULT_ASK_FOR_MODEL_SELECTION_EVERY_TIME = true
@@ -61,7 +59,7 @@ Follow-up question: {question}
 `
 
 export const getOllamaURL = async () => {
-  const ollamaURL = await storage.get("ollamaURL")
+  const ollamaURL = await getStorage("ollamaURL")
   if (!ollamaURL || ollamaURL.length === 0) {
     await urlRewriteRuntime(DEFAULT_OLLAMA_URL)
     return DEFAULT_OLLAMA_URL
@@ -71,7 +69,7 @@ export const getOllamaURL = async () => {
 }
 
 export const askForModelSelectionEveryTime = async () => {
-  const askForModelSelectionEveryTime = await storage.get(
+  const askForModelSelectionEveryTime = await getStorage(
     "askForModelSelectionEveryTime"
   )
   if (
@@ -83,7 +81,7 @@ export const askForModelSelectionEveryTime = async () => {
 }
 
 export const defaultModel = async () => {
-  const defaultModel = await storage.get("defaultModel")
+  const defaultModel = await getStorage("defaultModel")
   return defaultModel
 }
 
@@ -167,7 +165,7 @@ export const getAllModels = async ({
 }
 
 export const getSelectedModel = async () => {
-  const selectedModel = await storage.get("selectedModel")
+  const selectedModel = await getStorage("selectedModel")
   return selectedModel
 }
 
@@ -260,18 +258,18 @@ export const setOllamaURL = async (ollamaURL: string) => {
       "http://127.0.0.1:"
     )
   }
-  await storage.set("ollamaURL", cleanUrl(formattedUrl))
+  await setStorage("ollamaURL", cleanUrl(formattedUrl))
   await urlRewriteRuntime(cleanUrl(formattedUrl))
 }
 
 export const systemPromptForNonRag = async () => {
-  const prompt = await storage.get("systemPromptForNonRag")
+  const prompt = await getStorage("systemPromptForNonRag")
   return prompt
 }
 
 export const promptForRag = async () => {
-  const prompt = await storage.get("systemPromptForRag")
-  const questionPrompt = await storage.get("questionPromptForRag")
+  const prompt = await getStorage("systemPromptForRag")
+  const questionPrompt = await getStorage("questionPromptForRag")
 
   let ragPrompt = prompt
   let ragQuestionPrompt = questionPrompt
@@ -291,28 +289,28 @@ export const promptForRag = async () => {
 }
 
 export const setSystemPromptForNonRag = async (prompt: string) => {
-  await storage.set("systemPromptForNonRag", prompt)
+  await setStorage("systemPromptForNonRag", prompt)
 }
 
 export const setPromptForRag = async (
   prompt: string,
   questionPrompt: string
 ) => {
-  await storage.set("systemPromptForRag", prompt)
-  await storage.set("questionPromptForRag", questionPrompt)
+  await setStorage("systemPromptForRag", prompt)
+  await setStorage("questionPromptForRag", questionPrompt)
 }
 
 export const systemPromptForNonRagOption = async () => {
-  const prompt = await storage.get("systemPromptForNonRagOption")
+  const prompt = await getStorage("systemPromptForNonRagOption")
   return prompt
 }
 
 export const setSystemPromptForNonRagOption = async (prompt: string) => {
-  await storage.set("systemPromptForNonRagOption", prompt)
+  await setStorage("systemPromptForNonRagOption", prompt)
 }
 
 export const sendWhenEnter = async () => {
-  const sendWhenEnter = await storage.get("sendWhenEnter")
+  const sendWhenEnter = await getStorage("sendWhenEnter")
   if (!sendWhenEnter || sendWhenEnter.length === 0) {
     return true
   }
@@ -320,11 +318,11 @@ export const sendWhenEnter = async () => {
 }
 
 export const setSendWhenEnter = async (sendWhenEnter: boolean) => {
-  await storage.set("sendWhenEnter", sendWhenEnter.toString())
+  await setStorage("sendWhenEnter", sendWhenEnter.toString())
 }
 
 export const defaultEmbeddingModelForRag = async () => {
-  const embeddingMode = await storage.get("defaultEmbeddingModel")
+  const embeddingMode = await getStorage("defaultEmbeddingModel")
   if (!embeddingMode || embeddingMode.length === 0) {
     return null
   }
@@ -332,7 +330,7 @@ export const defaultEmbeddingModelForRag = async () => {
 }
 
 export const defaultEmbeddingChunkSize = async () => {
-  const embeddingChunkSize = await storage.get("defaultEmbeddingChunkSize")
+  const embeddingChunkSize = await getStorage("defaultEmbeddingChunkSize")
   if (!embeddingChunkSize || embeddingChunkSize.length === 0) {
     return 1000
   }
@@ -340,7 +338,7 @@ export const defaultEmbeddingChunkSize = async () => {
 }
 
 export const defaultSplittingStrategy = async () => {
-  const splittingStrategy = await storage.get("defaultSplittingStrategy")
+  const splittingStrategy = await getStorage("defaultSplittingStrategy")
   if (!splittingStrategy || splittingStrategy.length === 0) {
     return "RecursiveCharacterTextSplitter"
   }
@@ -348,7 +346,7 @@ export const defaultSplittingStrategy = async () => {
 }
 
 export const defaultSsplttingSeparator = async () => {
-  const splittingSeparator = await storage.get("defaultSplittingSeparator")
+  const splittingSeparator = await getStorage("defaultSplittingSeparator")
   if (!splittingSeparator || splittingSeparator.length === 0) {
     return "\\n\\n"
   }
@@ -356,7 +354,7 @@ export const defaultSsplttingSeparator = async () => {
 }
 
 export const defaultEmbeddingChunkOverlap = async () => {
-  const embeddingChunkOverlap = await storage.get(
+  const embeddingChunkOverlap = await getStorage(
     "defaultEmbeddingChunkOverlap"
   )
   if (!embeddingChunkOverlap || embeddingChunkOverlap.length === 0) {
@@ -366,23 +364,23 @@ export const defaultEmbeddingChunkOverlap = async () => {
 }
 
 export const setDefaultSplittingStrategy = async (strategy: string) => {
-  await storage.set("defaultSplittingStrategy", strategy)
+  await setStorage("defaultSplittingStrategy", strategy)
 }
 
 export const setDefaultSplittingSeparator = async (separator: string) => {
-  await storage.set("defaultSplittingSeparator", separator)
+  await setStorage("defaultSplittingSeparator", separator)
 }
 
 export const setDefaultEmbeddingModelForRag = async (model: string) => {
-  await storage.set("defaultEmbeddingModel", model)
+  await setStorage("defaultEmbeddingModel", model)
 }
 
 export const setDefaultEmbeddingChunkSize = async (size: number) => {
-  await storage.set("defaultEmbeddingChunkSize", size.toString())
+  await setStorage("defaultEmbeddingChunkSize", size.toString())
 }
 
 export const setDefaultEmbeddingChunkOverlap = async (overlap: number) => {
-  await storage.set("defaultEmbeddingChunkOverlap", overlap.toString())
+  await setStorage("defaultEmbeddingChunkOverlap", overlap.toString())
 }
 
 export const saveForRag = async (
@@ -410,7 +408,7 @@ export const saveForRag = async (
 }
 
 export const getWebSearchPrompt = async () => {
-  const prompt = await storage.get("webSearchPrompt")
+  const prompt = await getStorage("webSearchPrompt")
   if (!prompt || prompt.length === 0) {
     return DEFAULT_WEBSEARCH_PROMPT
   }
@@ -418,11 +416,11 @@ export const getWebSearchPrompt = async () => {
 }
 
 export const setWebSearchPrompt = async (prompt: string) => {
-  await storage.set("webSearchPrompt", prompt)
+  await setStorage("webSearchPrompt", prompt)
 }
 
 export const geWebSearchFollowUpPrompt = async () => {
-  const prompt = await storage.get("webSearchFollowUpPrompt")
+  const prompt = await getStorage("webSearchFollowUpPrompt")
   if (!prompt || prompt.length === 0) {
     return DEFAULT_WEBSEARCH_FOLLOWUP_PROMPT
   }
@@ -430,7 +428,7 @@ export const geWebSearchFollowUpPrompt = async () => {
 }
 
 export const setWebSearchFollowUpPrompt = async (prompt: string) => {
-  await storage.set("webSearchFollowUpPrompt", prompt)
+  await setStorage("webSearchFollowUpPrompt", prompt)
 }
 
 export const setWebPrompts = async (prompt: string, followUpPrompt: string) => {
@@ -439,7 +437,7 @@ export const setWebPrompts = async (prompt: string, followUpPrompt: string) => {
 }
 
 export const getPageShareUrl = async () => {
-  const pageShareUrl = await storage.get("pageShareUrl")
+  const pageShareUrl = await getStorage("pageShareUrl")
   if (!pageShareUrl || pageShareUrl.length === 0) {
     return DEFAULT_PAGE_SHARE_URL
   }
@@ -447,11 +445,11 @@ export const getPageShareUrl = async () => {
 }
 
 export const setPageShareUrl = async (pageShareUrl: string) => {
-  await storage.set("pageShareUrl", pageShareUrl)
+  await setStorage("pageShareUrl", pageShareUrl)
 }
 
 export const isOllamaEnabled = async () => {
-  const ollamaStatus = await storage.get<boolean>("checkOllamaStatus")
+  const ollamaStatus = await getStorage<boolean>("checkOllamaStatus")
   // if data is empty or null then return true
   if (typeof ollamaStatus === "undefined" || ollamaStatus === null) {
     return true

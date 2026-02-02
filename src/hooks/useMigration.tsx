@@ -1,18 +1,16 @@
-import { useEffect } from "react"
 import { useMutation } from "@tanstack/react-query"
-import { runAllMigrations } from "~/db/dexie/migration"
-import { Storage } from "@plasmohq/storage"
 import { message, notification } from "antd"
-
-const storage = new Storage()
+import { useEffect } from "react"
+import { runAllMigrations } from "~/db/dexie/migration"
+import { getStorage, setStorage } from "~/services/storage"
 
 export const getIsMigrated = async () => {
-  const isMigrated = await storage.get("isMigrated")
+  const isMigrated = await getStorage("isMigrated")
   return isMigrated || false
 }
 
 export const setIsMigrated = async (isMigrated: boolean) => {
-  await storage.set("isMigrated", isMigrated)
+  await setStorage("isMigrated", isMigrated)
 }
 
 interface MigrationResult {
@@ -43,7 +41,7 @@ export const useMigration = () => {
           error: error instanceof Error ? error.message : "Unknown error"
         }
       }
-  },
+    },
     onSuccess: async (result) => {
       if (result.success) {
         await setIsMigrated(true)

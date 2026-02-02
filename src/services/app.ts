@@ -1,22 +1,18 @@
-import { Storage } from "@plasmohq/storage"
-const storage = new Storage()
-const storage2 = new Storage({
-  area: "local"
-})
 
+import { getStorage, setStorage } from "@/services/storage"
 const DEFAULT_URL_REWRITE_URL = "http://127.0.0.1:11434"
 
 export const isUrlRewriteEnabled = async () => {
-  const enabled = await storage.get<boolean | undefined>("urlRewriteEnabled")
+  const enabled = await getStorage<boolean | undefined>("urlRewriteEnabled")
   return enabled ?? false
 }
 export const setUrlRewriteEnabled = async (enabled: boolean) => {
-  await storage.set("urlRewriteEnabled", enabled)
+  await setStorage("urlRewriteEnabled", enabled)
 }
 
 export const getIsAutoCORSFix = async () => {
   try {
-    const enabled = await storage2.get<boolean | undefined>("autoCORSFix")
+    const enabled = await getStorage<boolean | undefined>("autoCORSFix")
     return enabled ?? true
   } catch (e) {
     return true
@@ -24,12 +20,12 @@ export const getIsAutoCORSFix = async () => {
 }
 
 export const setAutoCORSFix = async (enabled: boolean) => {
-  await storage2.set("autoCORSFix", enabled)
+  await setStorage("autoCORSFix", enabled)
 }
 
 export const getOllamaEnabled = async () => {
   try {
-    const enabled = await storage.get<boolean | undefined>(
+    const enabled = await getStorage<boolean | undefined>(
       "ollamaEnabledStatus"
     )
     return enabled ?? true
@@ -39,11 +35,11 @@ export const getOllamaEnabled = async () => {
 }
 
 export const setOllamaEnabled = async (enabled: boolean) => {
-  await storage.set("ollamaEnabledStatus", enabled)
+  await setStorage("ollamaEnabledStatus", enabled)
 }
 
 export const getRewriteUrl = async () => {
-  const rewriteUrl = await storage.get("rewriteUrl")
+  const rewriteUrl = await getStorage("rewriteUrl")
   if (!rewriteUrl || rewriteUrl.trim() === "") {
     return DEFAULT_URL_REWRITE_URL
   }
@@ -51,7 +47,7 @@ export const getRewriteUrl = async () => {
 }
 
 export const setRewriteUrl = async (url: string) => {
-  await storage.set("rewriteUrl", url)
+  await setStorage("rewriteUrl", url)
 }
 
 export const getAdvancedOllamaSettings = async () => {
@@ -69,15 +65,15 @@ export const getAdvancedOllamaSettings = async () => {
 }
 
 export const copilotResumeLastChat = async () => {
-  return await storage.get<boolean>("copilotResumeLastChat")
+  return await getStorage<boolean>("copilotResumeLastChat")
 }
 
 export const webUIResumeLastChat = async () => {
-  return await storage.get<boolean>("webUIResumeLastChat")
+  return await getStorage<boolean>("webUIResumeLastChat")
 }
 
 export const defaultSidebarOpen = async () => {
-  const sidebarOpen = await storage.get("sidebarOpen")
+  const sidebarOpen = await getStorage("sidebarOpen")
   if (!sidebarOpen || sidebarOpen === "") {
     return "right_clk"
   }
@@ -85,13 +81,13 @@ export const defaultSidebarOpen = async () => {
 }
 
 export const setSidebarOpen = async (sidebarOpen: string) => {
-  await storage.set("sidebarOpen", sidebarOpen)
+  await setStorage("sidebarOpen", sidebarOpen)
 }
 
 export const customOllamaHeaders = async (): Promise<
   { key: string; value: string }[]
 > => {
-  const headers = await storage.get<
+  const headers = await getStorage<
     { key: string; value: string }[] | undefined
   >("customOllamaHeaders")
   if (!headers) {
@@ -101,7 +97,7 @@ export const customOllamaHeaders = async (): Promise<
 }
 
 export const setCustomOllamaHeaders = async (headers: string[]) => {
-  await storage.set("customOllamaHeaders", headers)
+  await setStorage("customOllamaHeaders", headers)
 }
 
 export const getCustomOllamaHeaders = async (): Promise<
@@ -119,63 +115,63 @@ export const getCustomOllamaHeaders = async (): Promise<
 }
 
 export const getOpenOnIconClick = async (): Promise<string> => {
-  const openOnIconClick = await storage.get<string>("openOnIconClick")
+  const openOnIconClick = await getStorage<string>("openOnIconClick")
   return openOnIconClick || "webUI"
 }
 
 export const setOpenOnIconClick = async (
   option: "webUI" | "sidePanel"
 ): Promise<void> => {
-  await storage.set("openOnIconClick", option)
+  await setStorage("openOnIconClick", option)
 }
 
 export const getOpenOnRightClick = async (): Promise<string> => {
-  const openOnRightClick = await storage.get<string>("openOnRightClick")
+  const openOnRightClick = await getStorage<string>("openOnRightClick")
   return openOnRightClick || "sidePanel"
 }
 
 export const setOpenOnRightClick = async (
   option: "webUI" | "sidePanel"
 ): Promise<void> => {
-  await storage.set("openOnRightClick", option)
+  await setStorage("openOnRightClick", option)
 }
 
 export const getTotalFilePerKB = async (): Promise<number> => {
-  const totalFilePerKB = await storage.get<number>("totalFilePerKB")
+  const totalFilePerKB = await getStorage<number>("totalFilePerKB")
   return totalFilePerKB || 5
 }
 
 export const setTotalFilePerKB = async (
   totalFilePerKB: number
 ): Promise<void> => {
-  await storage.set("totalFilePerKB", totalFilePerKB)
+  await setStorage("totalFilePerKB", totalFilePerKB)
 }
 
 export const getNoOfRetrievedDocs = async (): Promise<number> => {
-  const noOfRetrievedDocs = await storage.get<number>("noOfRetrievedDocs")
+  const noOfRetrievedDocs = await getStorage<number>("noOfRetrievedDocs")
   return noOfRetrievedDocs || 4
 }
 
 export const setNoOfRetrievedDocs = async (
   noOfRetrievedDocs: number
 ): Promise<void> => {
-  await storage.set("noOfRetrievedDocs", noOfRetrievedDocs)
+  await setStorage("noOfRetrievedDocs", noOfRetrievedDocs)
 }
 
 export const isRemoveReasoningTagFromCopy = async (): Promise<boolean> => {
-  const removeReasoningTagFromCopy = await storage.get<boolean>(
+  const removeReasoningTagFromCopy = await getStorage<boolean>(
     "removeReasoningTagFromCopy"
   )
   return removeReasoningTagFromCopy ?? true
 }
 
 export const getStorageSyncEnabled = async (): Promise<boolean> => {
-  const enabled = await storage2.get<boolean>("storageSyncEnabled")
+  const enabled = await getStorage<boolean>("storageSyncEnabled")
   return enabled ?? true
 }
 
 export const setStorageSyncEnabled = async (
   enabled: boolean
 ): Promise<void> => {
-  await storage2.set("storageSyncEnabled", enabled)
+  await setStorage("storageSyncEnabled", enabled)
 }

@@ -1,10 +1,6 @@
-import { setBadgeBackgroundColor, setBadgeText, setTitle } from "@/utils/action"
 import fetcher from "@/libs/fetcher"
-import { Storage } from "@plasmohq/storage"
-
-const storage = new Storage({
-  area: "local"
-})
+import { getStorage, setStorage } from "@/services/storage"
+import { setBadgeBackgroundColor, setBadgeText, setTitle } from "@/utils/action"
 
 export const progressHuman = (completed: number, total: number) => {
   return ((completed / total) * 100).toFixed(0) + "%"
@@ -19,26 +15,26 @@ export const setDownloadState = async (
   modelName: string | null,
   isDownloading: boolean
 ) => {
-  await storage.set("downloadingModel", {
+  await setStorage("downloadingModel", {
     modelName: decodeURIComponent(modelName || ""),
     isDownloading
   })
 }
 
 export const getDownloadState = async () => {
-  const state = await storage.get("downloadingModel")
+  const state = await getStorage("downloadingModel")
   return state || { modelName: null, isDownloading: false }
 }
 
 export const cancelDownload = async () => {
-  await storage.set("cancelDownload", true)
+  await setStorage("cancelDownload", true)
 }
 export const streamDownload = async (url: string, model: string) => {
   url += "/api/pull"
 
   await setDownloadState(model, true)
 
-  await storage.set("cancelDownload", false)
+  await setStorage("cancelDownload", false)
 
   const abortController = new AbortController()
 
@@ -62,7 +58,7 @@ export const streamDownload = async (url: string, model: string) => {
       break
     }
 
-    const cancelFlag = await storage.get("cancelDownload")
+    const cancelFlag = await getStorage("cancelDownload")
     if (cancelFlag) {
       abortController.abort()
       isCancelled = true
@@ -103,7 +99,7 @@ export const streamDownload = async (url: string, model: string) => {
   }
 
   await setDownloadState(null, false)
-  await storage.set("cancelDownload", false)
+  await setStorage("cancelDownload", false)
 
   if (isCancelled) {
     setBadgeText({ text: "⭕" })

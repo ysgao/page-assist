@@ -1,18 +1,17 @@
-import { useDarkMode } from "~/hooks/useDarkmode"
-import { Select, Switch } from "antd"
-import { MoonIcon, SunIcon } from "lucide-react"
-import { SearchModeSettings } from "./search-mode"
-import { useTranslation } from "react-i18next"
-import { useI18n } from "@/hooks/useI18n"
-import { TTSModeSettings } from "./tts-mode"
-import { useStorage } from "@plasmohq/storage/hook"
-import { SystemSettings } from "./system-settings"
-import { SSTSettings } from "./sst-settings"
 import { BetaTag } from "@/components/Common/Beta"
 import { getDefaultOcrLanguage, ocrLanguages } from "@/data/ocr-language"
-import { Storage } from "@plasmohq/storage"
+import { getAllPromptsSystem } from "@/db/dexie/helpers"
+import { useStorage } from "@/hooks/use-storage"
+import { useI18n } from "@/hooks/useI18n"
 import { useQuery } from "@tanstack/react-query"
-import { getAllPrompts, getAllPromptsSystem } from "@/db/dexie/helpers"
+import { Select, Switch } from "antd"
+import { MoonIcon, SunIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
+import { useDarkMode } from "~/hooks/useDarkmode"
+import { SearchModeSettings } from "./search-mode"
+import { SSTSettings } from "./sst-settings"
+import { SystemSettings } from "./system-settings"
+import { TTSModeSettings } from "./tts-mode"
 
 export const GeneralSettings = () => {
   const [userChatBubble, setUserChatBubble] = useStorage("userChatBubble", true)
@@ -109,13 +108,15 @@ export const GeneralSettings = () => {
     useStorage("removeReasoningTagFromCopy", true)
 
   const [youtubeAutoSummarize, setYoutubeAutoSummarize] = useStorage(
-    {
-      key: "youtubeAutoSummarize",
-      instance: new Storage({
-        area: "local"
-      })
-    },
+    "youtubeAutoSummarize",
     false
+  )
+  const [sidebarSettings, setSidebarSettings] = useStorage(
+    "sidebarSettings",
+    {
+      mode: "focus",
+      width: 350
+    }
   )
   const [hideReasoningWidget, setHideReasoningWidget] = useStorage(
     "hideReasoningWidget",
@@ -467,10 +468,10 @@ export const GeneralSettings = () => {
           options={
             prompts
               ? prompts.map((prompt) => ({
-                  key: prompt.id,
-                  value: prompt.id,
-                  label: prompt.title
-                }))
+                key: prompt.id,
+                value: prompt.id,
+                label: prompt.title
+              }))
               : []
           }
           value={defaultCopilotPrompt || undefined}
@@ -498,10 +499,10 @@ export const GeneralSettings = () => {
           options={
             prompts
               ? prompts.map((prompt) => ({
-                  key: prompt.id,
-                  value: prompt.id,
-                  label: prompt.title
-                }))
+                key: prompt.id,
+                value: prompt.id,
+                label: prompt.title
+              }))
               : []
           }
           value={defaultWebUIPrompt || undefined}

@@ -1,11 +1,10 @@
-import { pageAssistModel } from "@/models"
-import { Storage } from "@plasmohq/storage"
-import { getOllamaURL } from "./ollama"
 import { cleanUrl } from "@/libs/clean-url"
-import { HumanMessage } from "@langchain/core/messages"
 import { removeReasoning } from "@/libs/reasoning"
+import { pageAssistModel } from "@/models"
+import { getStorage, setStorage } from "@/services/storage"
 import { ChatHistory } from "@/store/option"
-const storage = new Storage()
+import { HumanMessage } from "@langchain/core/messages"
+import { getOllamaURL } from "./ollama"
 
 export const DEFAULT_TITLE_GEN_PROMPT = `Here is the conversation:
 
@@ -43,32 +42,32 @@ const formatHistoryAsQuery = (history: ChatHistory): string => {
 
 
 export const isTitleGenEnabled = async () => {
-    const enabled = await storage.get<boolean | undefined>("titleGenEnabled")
+    const enabled = await getStorage<boolean | undefined>("titleGenEnabled")
     return enabled ?? false
 }
 
 export const setTitleGenEnabled = async (enabled: boolean) => {
-    await storage.set("titleGenEnabled", enabled)
+    await setStorage("titleGenEnabled", enabled)
 }
 
 export const getTitleGenerationPrompt = async () => {
-    const title = await storage.get<string | undefined>("titleGenerationPrompt")
+    const title = await getStorage<string | undefined>("titleGenerationPrompt")
     return title ?? DEFAULT_TITLE_GEN_PROMPT
 }
 
 
 export const setTitleGenerationPrompt = async (prompt: string) => {
-    await storage.set("titleGenerationPrompt", prompt)
+    await setStorage("titleGenerationPrompt", prompt)
 }
 
 
 export const titleGenerationModel = async () => {
-    const model = await storage.get<string | undefined>("titleGenerationModel")
+    const model = await getStorage<string | undefined>("titleGenerationModel")
     return model
 }
 
 export const setTitleGenerationModel = async (model: string) => {
-    await storage.set("titleGenerationModel", model)
+    await setStorage("titleGenerationModel", model)
 }
 
 export const generateTitle = async (model: string, history: ChatHistory, fallBackTitle: string) => {

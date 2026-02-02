@@ -1,24 +1,23 @@
+import { ProviderIcons } from "@/components/Common/ProviderIcon"
+import { fetchChatModels } from "@/services/ollama"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Avatar, Form, Input, Select, Skeleton, Switch } from "antd"
-import { SaveButton } from "~/components/Common/SaveButton" 
+import { SaveButton } from "~/components/Common/SaveButton"
 import {
+  DEFAULT_TITLE_GEN_PROMPT,
+  getTitleGenerationPrompt,
   isTitleGenEnabled,
   setTitleGenEnabled,
-  getTitleGenerationPrompt,
+  setTitleGenerationModel,
   setTitleGenerationPrompt,
-  titleGenerationModel,
-  DEFAULT_TITLE_GEN_PROMPT,
-  setTitleGenerationModel
+  titleGenerationModel
 } from "~/services/title"
-import { ProviderIcons } from "@/components/Common/ProviderIcon"
-import { useStorage } from "@plasmohq/storage/hook"
-import { fetchChatModels } from "@/services/ollama"
 
 export const SettingTitle = () => {
   const [form] = Form.useForm()
   const queryClient = useQueryClient()
 
- 
+
   const { status, data } = useQuery({
     queryKey: ["fetchTitleSettings"],
     queryFn: async () => {
@@ -26,7 +25,7 @@ export const SettingTitle = () => {
         fetchChatModels({ returnEmpty: true }),
         isTitleGenEnabled(),
         getTitleGenerationPrompt(),
-        titleGenerationModel() 
+        titleGenerationModel()
       ])
 
       return {
@@ -107,11 +106,10 @@ export const SettingTitle = () => {
                 placeholder="Select a model (optional)"
                 style={{ width: "100%" }}
                 className="mt-4"
-                filterOption={(input, option) =>
-                  option.label.key
-                    .toLowerCase()
-                    .indexOf(input.toLowerCase()) >= 0
-                }
+                filterOption={(input, option) => {
+                  const labelText = typeof option.label === 'string' ? option.label : (option.label as any)?.props?.children?.[1]?.props?.children;
+                  return (labelText as string)?.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                }}
                 options={data.models?.map((model) => ({
                   label: (
                     <span

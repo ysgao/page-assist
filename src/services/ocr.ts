@@ -1,12 +1,11 @@
 import { getDefaultOcrLanguage } from "@/data/ocr-language"
 import { useStoreChatModelSettings } from "@/store/model"
-import { Storage } from "@plasmohq/storage"
 
-const storage = new Storage()
 
+import { getStorage } from "@/services/storage"
 
 export const getOCRLanguage = async () => {
-    const data = await storage.get<string | undefined | null>("defaultOCRLanguage")
+    const data = await getStorage<string | undefined | null>("defaultOCRLanguage")
     if (!data || data.length === 0) {
         return getDefaultOcrLanguage()
     }

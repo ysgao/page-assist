@@ -1,6 +1,5 @@
-import { Storage } from "@plasmohq/storage"
+import { getStorage, setStorage } from "@/services/storage"
 import { browser } from "wxt/browser"
-const storage = new Storage()
 
 const DEFAULT_SUMMARY_PROMPT = `Provide a concise summary of the following text, capturing its main ideas and key points:
 
@@ -55,45 +54,45 @@ Response:`
 const DEFAULT_CUSTOM_PROMPT = `{text}`
 
 export const getSummaryPrompt = async () => {
-    return (await storage.get("copilotSummaryPrompt")) || DEFAULT_SUMMARY_PROMPT
+    return (await getStorage("copilotSummaryPrompt")) || DEFAULT_SUMMARY_PROMPT
 }
 
 export const setSummaryPrompt = async (prompt: string) => {
-    await storage.set("copilotSummaryPrompt", prompt)
+    await setStorage("copilotSummaryPrompt", prompt)
 }
 
 export const getRephrasePrompt = async () => {
-    return (await storage.get("copilotRephrasePrompt")) || DEFAULT_REPHRASE_PROMPT
+    return (await getStorage("copilotRephrasePrompt")) || DEFAULT_REPHRASE_PROMPT
 }
 
 export const setRephrasePrompt = async (prompt: string) => {
-    await storage.set("copilotRephrasePrompt", prompt)
+    await setStorage("copilotRephrasePrompt", prompt)
 }
 
 export const getTranslatePrompt = async () => {
     return (
-        (await storage.get("copilotTranslatePrompt")) || DEFAULT_TRANSLATE_PROMPT
+        (await getStorage("copilotTranslatePrompt")) || DEFAULT_TRANSLATE_PROMPT
     )
 }
 
 export const setTranslatePrompt = async (prompt: string) => {
-    await storage.set("copilotTranslatePrompt", prompt)
+    await setStorage("copilotTranslatePrompt", prompt)
 }
 
 export const getExplainPrompt = async () => {
-    return (await storage.get("copilotExplainPrompt")) || DEFAULT_EXPLAIN_PROMPT
+    return (await getStorage("copilotExplainPrompt")) || DEFAULT_EXPLAIN_PROMPT
 }
 
 export const setExplainPrompt = async (prompt: string) => {
-    await storage.set("copilotExplainPrompt", prompt)
+    await setStorage("copilotExplainPrompt", prompt)
 }
 
 export const getCustomPrompt = async () => {
-    return (await storage.get("copilotCustomPrompt")) || DEFAULT_CUSTOM_PROMPT
+    return (await getStorage("copilotCustomPrompt")) || DEFAULT_CUSTOM_PROMPT
 }
 
 export const setCustomPrompt = async (prompt: string) => {
-    await storage.set("copilotCustomPrompt", prompt)
+    await setStorage("copilotCustomPrompt", prompt)
 }
 
 export const getAllCopilotPrompts = async () => {
@@ -123,7 +122,7 @@ export const getAllCopilotPrompts = async () => {
 }
 
 export const getCopilotPromptsEnabledState = async () => {
-    const state = await storage.get<Record<string, boolean>>("copilotPromptsEnabled")
+    const state = await getStorage<Record<string, boolean>>("copilotPromptsEnabled")
     return state || {
         summary: true,
         rephrase: true,
@@ -136,7 +135,7 @@ export const getCopilotPromptsEnabledState = async () => {
 export const toggleCopilotPromptEnabled = async (key: string, enabled: boolean) => {
     const state = await getCopilotPromptsEnabledState()
     state[key] = enabled
-    await storage.set("copilotPromptsEnabled", state)
+    await setStorage("copilotPromptsEnabled", state)
 
     // Notify background worker to refresh context menus
     try {
@@ -215,7 +214,7 @@ const generateID = () => {
 }
 
 export const getCustomCopilotPrompts = async (): Promise<CustomCopilotPrompt[]> => {
-    const prompts = await storage.get<CustomCopilotPrompt[]>("customCopilotPrompts")
+    const prompts = await getStorage<CustomCopilotPrompt[]>("customCopilotPrompts")
     return prompts || []
 }
 
@@ -232,7 +231,7 @@ export const saveCustomCopilotPrompt = async (data: {
         createdAt: Date.now()
     }
     customPrompts.push(newPrompt)
-    await storage.set("customCopilotPrompts", customPrompts)
+    await setStorage("customCopilotPrompts", customPrompts)
 
     // Notify background worker to refresh context menus
     try {
@@ -257,7 +256,7 @@ export const updateCustomCopilotPrompt = async (
             ...customPrompts[index],
             ...data
         }
-        await storage.set("customCopilotPrompts", customPrompts)
+        await setStorage("customCopilotPrompts", customPrompts)
 
         // Notify background worker to refresh context menus
         try {
@@ -276,7 +275,7 @@ export const updateCustomCopilotPrompt = async (
 export const deleteCustomCopilotPrompt = async (id: string) => {
     const customPrompts = await getCustomCopilotPrompts()
     const filtered = customPrompts.filter(p => p.id !== id)
-    await storage.set("customCopilotPrompts", filtered)
+    await setStorage("customCopilotPrompts", filtered)
 
     // Notify background worker to refresh context menus
     try {

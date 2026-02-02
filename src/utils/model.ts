@@ -1,9 +1,8 @@
 import { getModelInfo, isCustomModel } from "@/db/dexie/models"
-import { Storage } from "@plasmohq/storage"
-const storage = new Storage()
 
+import { getStorage } from "@/services/storage"
 export const getSelectedModelName = async (): Promise<string> => {
-    const selectedModel = await storage.get("selectedModel")
+    const selectedModel = await getStorage("selectedModel")
     const isCustom = isCustomModel(selectedModel)
     if (isCustom) {
         const customModel = await getModelInfo(selectedModel)
